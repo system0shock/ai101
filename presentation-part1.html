@@ -1,0 +1,2164 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>AI 101 · Часть 1: Теория и контекст</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --ink: #111111;
+    --paper: #ffffff;
+    --accent: #ff2e63;
+    --accent-2: #00b894;
+    --accent-3: #f6c945;
+    --muted: #6b6b6b;
+    --line: #1a1a1a;
+    --code-bg: #1a1a1a;
+    --code-fg: #f4f1ea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    color: var(--ink);
+  }
+
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg);
+    display: none;
+    overflow: hidden;
+    padding: 44px 64px;
+  }
+
+  .slide.active { display: block; }
+
+  /* Slide template: title bar */
+  .slide-num {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .slide-kicker {
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    color: var(--ink);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .slide-kicker .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  /* Typography */
+  h1.mega {
+    font-family: 'Georgia', serif;
+    font-size: 140px;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+  }
+
+  h1.big {
+    font-family: 'Georgia', serif;
+    font-size: 88px;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+  }
+
+  h2.section {
+    font-family: 'Georgia', serif;
+    font-size: 56px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-family: 'Georgia', serif;
+    font-size: 38px;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    font-weight: 700;
+  }
+
+  p, li {
+    font-family: 'Georgia', serif;
+    font-size: 22px;
+    line-height: 1.45;
+  }
+
+  .lead {
+    font-size: 28px;
+    line-height: 1.4;
+  }
+
+  .mono {
+    font-family: 'Courier New', monospace;
+  }
+
+  .label {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .accent { color: var(--accent); }
+  .ink-inv { color: var(--paper); }
+
+  /* Title slide */
+  .title-slide {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .title-slide .slide-kicker { color: var(--paper); }
+  .title-slide .slide-num { color: #888; }
+
+  .title-slide .stack {
+    position: absolute;
+    bottom: 80px;
+    left: 80px;
+    right: 80px;
+  }
+
+  .title-slide h1 {
+    font-family: 'Georgia', serif;
+    font-size: 180px;
+    line-height: 0.88;
+    letter-spacing: -0.05em;
+    font-weight: 700;
+  }
+
+  .title-slide .subtitle {
+    font-size: 26px;
+    margin-top: 32px;
+    max-width: 900px;
+    color: #d4d4d4;
+  }
+
+  .title-slide .meta {
+    position: absolute;
+    top: 80px;
+    left: 80px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    color: #888;
+  }
+
+  .title-slide .accent-mark {
+    position: absolute;
+    top: 80px;
+    right: 80px;
+    width: 200px;
+    height: 200px;
+  }
+
+  /* Section divider slides */
+  .section-slide {
+    background: var(--ink);
+    color: var(--paper);
+    display: none;
+  }
+  .section-slide.active { display: flex; align-items: center; }
+  .section-slide .slide-kicker { color: var(--paper); }
+  .section-slide .slide-num { color: #888; }
+
+  .section-slide .content {
+    width: 100%;
+    padding: 0 80px;
+  }
+
+  .section-slide .num {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 24px;
+  }
+
+  .section-slide h2 {
+    font-family: 'Georgia', serif;
+    font-size: 130px;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+    max-width: 1100px;
+  }
+
+  .section-slide .sub {
+    font-size: 24px;
+    color: #b0b0b0;
+    margin-top: 32px;
+    max-width: 800px;
+  }
+
+  /* Two-col layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    margin-top: 32px;
+  }
+
+  .col-title {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  /* Problem / Solution blocks */
+  .ps-card {
+    border: 2px solid var(--ink);
+    padding: 28px;
+    background: var(--paper);
+    position: relative;
+  }
+
+  .ps-card.problem {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .ps-card.solution {
+    background: var(--accent);
+    color: var(--paper);
+  }
+
+  .ps-card .tag {
+    position: absolute;
+    top: -14px;
+    left: 24px;
+    background: inherit;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    padding: 4px 10px;
+    text-transform: uppercase;
+  }
+
+  .ps-card.problem .tag { background: var(--ink); color: var(--accent); border: 2px solid var(--accent); }
+  .ps-card.solution .tag { background: var(--accent); color: var(--paper); border: 2px solid var(--paper); }
+
+  .ps-card h4 {
+    font-family: 'Georgia', serif;
+    font-size: 30px;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  .ps-card p {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  /* Bullet lists with custom marker */
+  ul.dash {
+    list-style: none;
+    padding: 0;
+  }
+  ul.dash li {
+    padding-left: 28px;
+    position: relative;
+    margin-bottom: 14px;
+    font-size: 21px;
+  }
+  ul.dash li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Code-like blocks */
+  .code-block {
+    font-family: 'Courier New', monospace;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 18px 22px;
+    font-size: 17px;
+    line-height: 1.5;
+    border-radius: 0;
+    white-space: pre;
+    overflow-x: auto;
+    tab-size: 2;
+  }
+
+  .code-block .c { color: #6a737d; }
+  .code-block .k { color: #ff79c6; }
+  .code-block .s { color: #50fa7b; }
+  .code-block .v { color: #8be9fd; }
+
+  /* Tables */
+  table.cmp {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-family: 'Georgia', serif;
+  }
+  table.cmp th, table.cmp td {
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid #888;
+    font-size: 19px;
+    vertical-align: top;
+  }
+  table.cmp th {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--ink);
+  }
+  table.cmp td.left-col {
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    font-size: 17px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    width: 22%;
+  }
+
+  /* Navigation HUD */
+  .hud {
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .hud-inner {
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    padding: 8px 18px;
+    text-transform: uppercase;
+    pointer-events: auto;
+  }
+
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+    z-index: 200;
+  }
+
+  /* Quote-style slide */
+  .quote-slide {
+    background: var(--accent);
+    color: var(--paper);
+    display: none;
+    align-items: center;
+  }
+  .quote-slide.active { display: flex; }
+  .quote-slide .slide-kicker { color: var(--paper); }
+  .quote-slide .slide-num { color: rgba(255,255,255,0.7); }
+
+  .quote-slide .content {
+    width: 100%;
+    padding: 0 80px;
+  }
+
+  .quote-slide h2 {
+    font-family: 'Georgia', serif;
+    font-size: 110px;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    max-width: 1200px;
+  }
+
+  .quote-slide .who {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    margin-top: 32px;
+    text-transform: uppercase;
+  }
+
+  /* Diagram wrapper */
+  .diagram {
+    margin-top: 24px;
+  }
+
+  /* Big number callout */
+  .big-num {
+    font-family: 'Georgia', serif;
+    font-size: 200px;
+    line-height: 0.85;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+  }
+
+  /* Footer hint */
+  .footer-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 80px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* Token chip */
+  .token {
+    display: inline-block;
+    padding: 6px 10px;
+    margin: 4px 3px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+  }
+  .token.kw { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+  .token.s { background: var(--accent-2); color: var(--paper); border-color: var(--accent-2); }
+  .token.y { background: var(--accent-3); color: var(--ink); border-color: var(--accent-3); }
+
+  /* Pill */
+  .pill {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-right: 8px;
+  }
+  .pill.accent { background: var(--accent); }
+  .pill.green { background: var(--accent-2); }
+  .pill.yellow { background: var(--accent-3); color: var(--ink); }
+  .pill.outline { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+
+  /* Cards grid */
+  .cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .cards-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .info-card {
+    border: 2px solid var(--ink);
+    padding: 20px;
+    background: var(--paper);
+  }
+  .info-card h5 {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+  .info-card p {
+    font-size: 19px;
+    line-height: 1.45;
+  }
+  .info-card .num {
+    font-family: 'Georgia', serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  /* Flow chain */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 32px;
+  }
+  .flow-step {
+    flex: 1;
+    padding: 18px 14px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-right: none;
+    position: relative;
+  }
+  .flow-step:last-child { border-right: 2px solid var(--ink); }
+  .flow-step .step-n {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .flow-step h6 {
+    font-family: 'Georgia', serif;
+    font-size: 20px;
+    line-height: 1.15;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .flow-step p {
+    font-size: 16px;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+
+  /* Hide controls when noted */
+  .no-num .slide-num { display: none; }
+
+  /* Arrow markers stay visible on coloured backgrounds */
+  [style*="background:#ff2e63"] ul.dash li::before,
+  [style*="background: #ff2e63"] ul.dash li::before,
+  [style*="background:#111"] ul.dash li::before,
+  .ps-card.problem ul.dash li::before { color: #fff; }
+
+  /* Print-friendly fallback */
+  @media print {
+    .slide { display: block !important; page-break-after: always; height: auto; }
+    .hud, .progress { display: none; }
+  }
+
+  /* Bold up general text for projection readability */
+  .slide p { font-weight: 500; }
+  .info-card p { font-weight: 500; }
+  .info-card h5 { font-weight: 700; letter-spacing: 0.12em; }
+  .dash li { font-weight: 500; }
+  .col-title { font-weight: 800; letter-spacing: 0.12em; }
+  .label { font-weight: 700; }
+
+  /* Footer / bottom bars — always bold */
+  .slide > div[style*="position:absolute"] p,
+  .slide > div[style*="position:absolute"] span.label { font-weight: 700; }
+
+  /* Larger projection type for part 1, excluding the title slide */
+  .slide:not(.title-slide) .slide-num,
+  .slide:not(.title-slide) .slide-kicker,
+  .slide:not(.title-slide) .label,
+  .slide:not(.title-slide) .col-title { font-size: 16px; }
+
+  .slide:not(.title-slide) h2.section { font-size: 58px; line-height: 1.04; }
+  .slide:not(.title-slide) h3 { font-size: 39px; }
+  .slide:not(.title-slide) p,
+  .slide:not(.title-slide) li { font-size: 23px; line-height: 1.36; }
+  .slide:not(.title-slide) .lead { font-size: 30px; }
+  .slide:not(.title-slide) ul.dash li { font-size: 22px; margin-bottom: 10px; }
+  .slide:not(.title-slide) .code-block { font-size: 18px; line-height: 1.45; }
+  .slide:not(.title-slide) table.cmp th,
+  .slide:not(.title-slide) table.cmp td { font-size: 20px; }
+  .slide:not(.title-slide) table.cmp th { font-size: 15px; }
+  .slide:not(.title-slide) table.cmp td.left-col { font-size: 18px; }
+  .slide:not(.title-slide) .info-card { padding: 18px; }
+  .slide:not(.title-slide) .info-card h5,
+  .slide:not(.title-slide) .pill { font-size: 15px; }
+  .slide:not(.title-slide) .info-card p { font-size: 20px; line-height: 1.34; }
+  .slide:not(.title-slide) .flow-step .step-n { font-size: 14px; }
+  .slide:not(.title-slide) .flow-step h6 { font-size: 21px; }
+  .slide:not(.title-slide) .flow-step p { font-size: 17px; }
+  .slide:not(.title-slide) .section-slide .num,
+  .section-slide .num { font-size: 26px; }
+  .section-slide h2 { font-size: 136px; line-height: 0.98; }
+  .section-slide .sub { font-size: 27px; line-height: 1.35; }
+  .quote-slide .content { padding: 0 40px; }
+  .quote-slide h2 { font-size: 86px; line-height: 1.0; }
+  .quote-slide .who { font-size: 16px; }
+  .hud { display: none; }
+
+  .slide:not(.title-slide) [style*="font-size:13px"] { font-size: 14px !important; }
+  .slide:not(.title-slide) [style*="font-size:14px"] { font-size: 15px !important; }
+  .slide:not(.title-slide) [style*="font-size:15px"] { font-size: 16px !important; }
+  .slide:not(.title-slide) [style*="font-size:16px"] { font-size: 17px !important; }
+  .slide:not(.title-slide) [style*="font-size:17px"] { font-size: 18px !important; }
+  .slide:not(.title-slide) [style*="font-size:18px"] { font-size: 19px !important; }
+  .slide:not(.title-slide) [style*="font-size:19px"] { font-size: 20px !important; }
+  .slide:not(.title-slide) [style*="font-size:20px"] { font-size: 21px !important; }
+  .slide:not(.title-slide) [style*="font-size:22px"] { font-size: 24px !important; }
+  .slide:not(.title-slide) [style*="font-size:24px"] { font-size: 25px !important; }
+  .slide:not(.title-slide) [style*="font-size:44px"] { font-size: 46px !important; }
+  .slide:not(.title-slide) [style*="font-size:48px"] { font-size: 50px !important; }
+
+  .slide:not(.title-slide) svg text[font-size="11"] { font-size: 12px; }
+  .slide:not(.title-slide) svg text[font-size="12"] { font-size: 13px; }
+  .slide:not(.title-slide) svg text[font-size="13"] { font-size: 13.5px; }
+
+  /* Slide 4: motivating example needs readable prompt and answer text */
+  .deck > section:nth-of-type(4) .code-block {
+    font-size: 20px !important;
+    line-height: 1.55 !important;
+  }
+  .deck > section:nth-of-type(4) .code-block + div {
+    font-size: 21px !important;
+    line-height: 1.52 !important;
+  }
+  .deck > section:nth-of-type(4) p[style*="font-size:15px"] {
+    font-size: 18px !important;
+  }
+
+  /* Dense slides: keep the larger type but reclaim vertical space */
+  .deck > section:nth-of-type(7) table.cmp th,
+  .deck > section:nth-of-type(7) table.cmp td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 19px;
+    line-height: 1.2;
+  }
+  .deck > section:nth-of-type(7) h2.section { font-size: 54px; }
+  .deck > section:nth-of-type(7) table.cmp { margin-top: 18px !important; }
+  .deck > section:nth-of-type(7) table.cmp th { font-size: 15px; }
+  .deck > section:nth-of-type(7) table.cmp td.left-col { font-size: 17px; }
+  .deck > section:nth-of-type(7) > div[style*="bottom:80px"] {
+    bottom: 42px !important;
+    padding: 12px 16px !important;
+  }
+  .deck > section:nth-of-type(7) > div[style*="bottom:80px"] span[style*="font-size:22px"] {
+    font-size: 22px !important;
+  }
+
+  /* Slide 8: model types */
+  .deck > section:nth-of-type(8) .info-card p,
+  .deck > section:nth-of-type(8) div[style*="border:2px solid #111"] p {
+    font-size: 19px !important;
+    line-height: 1.42 !important;
+  }
+  .deck > section:nth-of-type(8) .info-card h5,
+  .deck > section:nth-of-type(8) strong[style*="font-family:Courier New"] {
+    font-size: 16px !important;
+  }
+  .deck > section:nth-of-type(8) p[style*="font-family:Courier New"] {
+    font-size: 15px !important;
+  }
+
+  /* Slide 24: context problems */
+  .deck > section:nth-of-type(24) h2.section { font-size: 50px !important; }
+  .deck > section:nth-of-type(24) > p { font-size: 19px !important; }
+  .deck > section:nth-of-type(24) strong[style*="font-size:16px"] {
+    font-size: 18px !important;
+  }
+  .deck > section:nth-of-type(24) p[style*="font-size:15px"] {
+    font-size: 17px !important;
+    line-height: 1.48 !important;
+  }
+  .deck > section:nth-of-type(24) > div[style*="bottom:44px"] p {
+    font-size: 20px !important;
+  }
+
+  /* Slide 18: sampling filters example */
+  .sampling-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr 1fr;
+    gap: 18px;
+    margin-top: 22px;
+    align-items: stretch;
+  }
+  .sampling-panel {
+    background: #fff;
+    border: 2px solid #111;
+    padding: 16px;
+  }
+  .sampling-panel.hot {
+    border-color: #ff2e63;
+    background: #fff8f8;
+  }
+  .sampling-panel.green {
+    border-color: #00b894;
+    background: #f0fdf9;
+  }
+  .sampling-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+  .sampling-table th,
+  .sampling-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 7px 6px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .sampling-table th {
+    font-size: 13px;
+    color: #6b6b6b;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sampling-table .keep {
+    background: rgba(255,46,99,0.12);
+    font-weight: 800;
+  }
+  .sampling-list {
+    font-family: 'Courier New', monospace;
+    font-size: 19px;
+    line-height: 1.52;
+    list-style: none;
+    margin-top: 10px;
+  }
+  .sampling-list li {
+    font-family: 'Courier New', monospace;
+    font-size: 19px !important;
+    line-height: 1.52 !important;
+    margin-bottom: 1px !important;
+  }
+  .sampling-list .yes { color: #00a879; font-weight: 800; }
+  .sampling-list .no { color: #777; }
+  .sampling-list .stop { color: #ff2e63; font-weight: 900; }
+  .sampling-note {
+    margin-top: 12px;
+    padding: 12px;
+    border-left: 4px solid #111;
+    background: rgba(255,255,255,0.7);
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+    font-weight: 700;
+  }
+  .temperature-strip {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 170px 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .temperature-strip > div {
+    border: 2px solid #111;
+    background: #fff;
+    padding: 10px 12px;
+  }
+  .temperature-strip .label-cell {
+    background: #111;
+    color: #fff;
+  }
+  .temperature-strip .cold {
+    border-color: #00b894;
+    background: #f0fdf9;
+  }
+  .temperature-strip .hot {
+    border-color: #ff2e63;
+    background: #fff8f8;
+  }
+  .temperature-strip strong {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .temperature-strip p {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+    font-weight: 700;
+  }
+
+  .deck > section:nth-of-type(12) .two-col { margin-top: 28px !important; gap: 42px; }
+  .deck > section:nth-of-type(12) .two-col > div { padding: 18px !important; }
+  .deck > section:nth-of-type(12) h3 { font-size: 34px !important; margin-top: 12px !important; margin-bottom: 8px !important; }
+  .deck > section:nth-of-type(12) ul.dash li { font-size: 20px !important; margin-bottom: 8px; }
+  .deck > section:nth-of-type(12) [style*="margin-top:16px"] { margin-top: 10px !important; }
+  .deck > section:nth-of-type(12) > div[style*="bottom:80px"] {
+    bottom: 40px !important;
+    padding: 12px 16px !important;
+  }
+  .deck > section:nth-of-type(12) > div[style*="bottom:80px"] p { font-size: 18px !important; line-height: 1.28; }
+
+  .deck > section:nth-of-type(15) > div[style*="grid-template-columns"] {
+    margin-top: 20px !important;
+    align-items: start !important;
+    gap: 40px !important;
+  }
+  .deck > section:nth-of-type(15) ul.dash li {
+    font-size: 21px !important;
+    margin-bottom: 8px;
+    line-height: 1.32;
+  }
+  .deck > section:nth-of-type(15) [style*="margin-top:24px"] { margin-top: 12px !important; }
+  .deck > section:nth-of-type(15) [style*="margin-top:14px"] { margin-top: 8px !important; }
+  .deck > section:nth-of-type(15) [style*="font-size:16px"] { font-size: 16px !important; line-height: 1.35 !important; }
+
+  .deck > section:nth-of-type(16) > div[style*="grid-template-columns"] {
+    margin-top: 16px !important;
+    gap: 36px !important;
+  }
+  .deck > section:nth-of-type(16) ul.dash li {
+    font-size: 21px !important;
+    margin-bottom: 8px;
+    line-height: 1.32;
+  }
+  .deck > section:nth-of-type(16) [style*="margin-top:28px"] { margin-top: 14px !important; }
+  .deck > section:nth-of-type(16) [style*="font-size:18px"] { font-size: 17px !important; line-height: 1.38 !important; }
+
+  .deck > section:nth-of-type(17) > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr 1.25fr !important;
+    gap: 36px !important;
+    margin-top: 20px !important;
+  }
+  .deck > section:nth-of-type(17) [style*="padding:12px 14px"],
+  .deck > section:nth-of-type(17) [style*="padding:14px 16px"] {
+    padding: 9px 12px !important;
+  }
+  .deck > section:nth-of-type(17) [style*="gap:8px"] { gap: 6px !important; }
+  .deck > section:nth-of-type(17) [style*="font-size:15px"] {
+    font-size: 15px !important;
+    line-height: 1.32 !important;
+  }
+  .deck > section:nth-of-type(17) [style*="font-size:17px"] { font-size: 16px !important; }
+
+  .deck > section:nth-of-type(22) h2.section { font-size: 54px; }
+  .deck > section:nth-of-type(22) > div[style*="margin-top:32px"] { margin-top: 22px !important; }
+  .deck > section:nth-of-type(22) > div[style*="margin-top:24px"] { margin-top: 16px !important; }
+  .deck > section:nth-of-type(22) > div[style*="margin-top:28px"] {
+    margin-top: 18px !important;
+    gap: 18px !important;
+  }
+  .deck > section:nth-of-type(22) .info-card { padding: 14px; }
+  .deck > section:nth-of-type(22) .info-card p { font-size: 18px; line-height: 1.3; }
+  .deck > section:nth-of-type(22) > div[style*="border-left:6px"] {
+    margin-top: 16px !important;
+    padding: 12px 16px !important;
+  }
+  .deck > section:nth-of-type(22) > div[style*="border-left:6px"] p {
+    font-size: 18px !important;
+    line-height: 1.25;
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+  <!-- ============ SLIDE 1: TITLE ============ -->
+  <section class="slide title-slide active">
+    <div class="meta">AI 101 · GIGACODE · 2026</div>
+    <div class="slide-num"></div>
+    <svg class="accent-mark" viewBox="0 0 200 200" fill="none">
+      <circle cx="100" cy="100" r="92" stroke="#ff2e63" stroke-width="3"/>
+      <circle cx="100" cy="100" r="60" stroke="#ff2e63" stroke-width="2"/>
+      <circle cx="100" cy="100" r="28" fill="#ff2e63"/>
+      <line x1="0" y1="100" x2="200" y2="100" stroke="#ff2e63" stroke-width="1" stroke-dasharray="4 6"/>
+      <line x1="100" y1="0" x2="100" y2="200" stroke="#ff2e63" stroke-width="1" stroke-dasharray="4 6"/>
+    </svg>
+    <div class="stack">
+      <h1>AI 101<br><span style="color:#ff2e63">для&nbsp;инженеров</span> <span style="display:inline-block; font-size:20px; font-style:italic; font-weight:400; opacity:0.50; vertical-align:bottom; margin-left:18px; padding-bottom:10px; transform:rotate(-8deg); transform-origin:left bottom; font-family:Georgia,serif; letter-spacing:0;">и не только</span></h1>
+      <div class="subtitle">Как LLM работают, почему контекст решает — и как ставить задачи без магии.</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 2: AGENDA ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>ОГЛАВЛЕНИЕ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:40px; margin-bottom:32px;">Три части.</h2>
+    <div class="two-col" style="grid-template-columns: 1fr 1fr 1fr; gap:32px;">
+      <div style="border:2px solid #ff2e63; padding:20px; background:#fff;">
+        <div class="col-title" style="color:#ff2e63; border-color:#ff2e63;">Ⅰ · ТЕОРИЯ + КОНТЕКСТ</div>
+        <ul class="dash" style="font-size:18px;">
+          <li>AI, ML, нейросети, LLM</li>
+          <li>LLM vs классический ML</li>
+          <li>Типы моделей</li>
+          <li>Как работает нейросеть</li>
+          <li>Токены, embeddings, decoding</li>
+          <li>Контекст и context management</li>
+          <li>Prompt engineering</li>
+        </ul>
+        <div style="margin-top:16px; font-family:'Courier New',monospace; font-size:14px; color:#ff2e63; font-weight:700;">← СЕГОДНЯ</div>
+      </div>
+      <div style="opacity:0.38;">
+        <div class="col-title">Ⅱ · ИНСТРУМЕНТЫ</div>
+        <ul class="dash" style="font-size:18px;">
+          <li>Tools, native CLI</li>
+          <li>MCP</li>
+          <li>GigaCode как среда</li>
+          <li>Skills, sub-agents, hooks</li>
+        </ul>
+      </div>
+      <div style="opacity:0.38;">
+        <div class="col-title">Ⅲ · ФЛОУ</div>
+        <ul class="dash" style="font-size:18px;">
+          <li>Мини-workflow на реальном примере</li>
+          <li>Ограничения и риски</li>
+          <li>Выводы</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3: INTRO — what this talk is NOT ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 1 · ВВЕДЕНИЕ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:40px;">Чего здесь не&nbsp;будет</h2>
+    <div class="two-col" style="margin-top:48px;">
+      <div>
+        <div class="col-title">НЕ БУДЕТ</div>
+        <ul class="dash">
+          <li>Математики трансформеров и backpropagation</li>
+          <li>«AI заменит всех»</li>
+          <li>Магических рецептов и маркетинговых обещаний</li>
+          <li>Сравнения вендоров и битвы за лидерборд</li>
+        </ul>
+      </div>
+      <div>
+        <div class="col-title">БУДЕТ</div>
+        <ul class="dash">
+          <li>Принципы работы LLM на уровне интуиции</li>
+          <li>Управление контекстом как инженерная задача</li>
+          <li>Как правильно ставить задачи модели</li>
+          <li>Инструменты и workflow — в следующих частях</li>
+        </ul>
+      </div>
+    </div>
+    <div style="position:absolute; bottom:90px; left:80px; right:80px; border-top:2px solid #111; padding-top:24px;">
+      <div class="label">ГЛАВНАЯ ФОРМУЛА ДОКЛАДА</div>
+      <p class="lead" style="margin-top:8px; font-weight:700;">
+        Модель <span class="accent">+</span> Контекст <span class="accent">+</span> Инструменты <span class="accent">+</span> Workflow <span class="accent">+</span> Проверка
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Opening motivating example ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 1 · МОТИВАЦИЯ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Одна задача.<br>Два контекста.</h2>
+    <div style="margin-top:32px; display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:stretch; min-height:58vh;">
+      <div style="border:2px solid #ff2e63; padding:20px; background:#fff8f8; display:flex; flex-direction:column;">
+        <div class="label" style="color:#ff2e63; margin-bottom:12px;">ЗАПРОС БЕЗ КОНТЕКСТА</div>
+        <div class="code-block" style="font-size:15px; background:#1a1a1a; color:#f4f1ea; margin-bottom:14px; line-height:1.5;">
+<span style="color:#6b6b6b;">&gt;</span> Почему refreshToken возвращает 500?
+        </div>
+        <div style="padding:14px; background:#fff; border:1px solid #eee; font-size:17px; line-height:1.55; color:#444;">
+          refreshToken может возвращать 500 из-за ошибки сервера. Проверьте логи и убедитесь, что endpoint корректно обрабатывает исключения. Возможно, истёк срок действия токена или есть проблемы с базой данных...
+        </div>
+        <p style="font-size:15px; color:#ff2e63; margin-top:auto; padding-top:10px; font-weight:700;">↑ Правдоподобно. Бесполезно.</p>
+      </div>
+      <div style="border:2px solid #00b894; padding:20px; background:#f0fdf9; display:flex; flex-direction:column;">
+        <div class="label" style="color:#00b894; margin-bottom:12px;">ЗАПРОС С КОНТЕКСТОМ</div>
+        <div class="code-block" style="font-size:15px; background:#1a1a1a; color:#f4f1ea; margin-bottom:14px; line-height:1.5;">
+<span style="color:#6b6b6b;">&gt;</span> Почему refreshToken возвращает 500?
+<span style="color:#6b6b6b;">  [auth/token/refresh.js · middleware/auth.js]</span>
+<span style="color:#6b6b6b;">  [тикет AUTH-441: ротация не работает]</span>
+        </div>
+        <div style="padding:14px; background:#fff; border:1px solid #eee; font-size:17px; line-height:1.55; color:#444;">
+          В строке 47 <code>refresh.js</code> при ротации токена выбрасывается необработанное исключение: <code>TokenStore.rotate()</code> ожидает транзакцию, но <code>middleware/auth.js</code> вызывает его вне транзакционного контекста.
+        </div>
+        <p style="font-size:15px; color:#00b894; margin-top:auto; padding-top:10px; font-weight:700;">↑ Конкретно. Проверяемо.</p>
+      </div>
+    </div>
+    <div style="position:absolute; bottom:80px; left:80px; right:80px; padding:16px; background:#111; color:#fff;">
+      <p style="font-size:20px; font-weight:700;">Модель та же. Разница — в том, <strong>что попало в контекст</strong>. Этому посвящена вся первая часть.</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: SECTION I ============ -->
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>ЧАСТЬ Ⅰ</div>
+    <div class="slide-num"></div>
+    <div class="content">
+      <div class="num">— 01 —</div>
+      <h2>Как это устроено</h2>
+      <div class="sub" style="color:#d4d4d4;">Достаточно, чтобы понимать ограничения инструмента. После этой части станет понятно, почему «загрузи всё» ухудшает ответ.</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5: AI / ML / NN / LLM diagram ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 2 · ТЕРМИНЫ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Где здесь LLM?</h2>
+    <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap:40px; margin-top:32px;">
+      <div class="diagram">
+        <svg viewBox="0 0 520 420" style="width:100%;">
+          <!-- AI outer -->
+          <rect x="10" y="10" width="500" height="400" fill="none" stroke="#111" stroke-width="2"/>
+          <text x="24" y="36" font-family="Courier New" font-size="14" letter-spacing="2" fill="#111">AI</text>
+
+          <!-- ML -->
+          <rect x="50" y="60" width="430" height="330" fill="#fff" stroke="#111" stroke-width="2"/>
+          <text x="64" y="86" font-family="Courier New" font-size="14" letter-spacing="2" fill="#111">MACHINE LEARNING</text>
+
+          <!-- NN -->
+          <rect x="100" y="120" width="360" height="250" fill="#f4f1ea" stroke="#111" stroke-width="2"/>
+          <text x="114" y="146" font-family="Courier New" font-size="14" letter-spacing="2" fill="#111">НЕЙРОСЕТИ</text>
+
+          <!-- LLM -->
+          <rect x="160" y="180" width="270" height="160" fill="#ff2e63" stroke="#ff2e63" stroke-width="2"/>
+          <text x="180" y="208" font-family="Courier New" font-size="13" letter-spacing="2" fill="#fff">LLM</text>
+          <text x="180" y="240" font-family="Georgia" font-size="28" font-weight="700" fill="#fff">Large Language</text>
+          <text x="180" y="270" font-family="Georgia" font-size="28" font-weight="700" fill="#fff">Model</text>
+          <text x="180" y="312" font-family="Courier New" font-size="13" fill="#fff" opacity="0.85">токены · текст · код</text>
+          <text x="180" y="330" font-family="Courier New" font-size="13" fill="#fff" opacity="0.85">инструкции</text>
+        </svg>
+      </div>
+      <div>
+        <div class="col-title">ОТ ШИРОКОГО К УЗКОМУ</div>
+        <ul class="dash" style="margin-top:16px;">
+          <li><strong>AI</strong> — общий зонтик. <span style="color:#6b6b6b;">OCR, рекомендации, планировщики маршрутов.</span></li>
+          <li><strong>ML</strong> — система учится на данных. <span style="color:#6b6b6b;">Скоринг, прогноз нагрузки, фрод.</span></li>
+          <li><strong>Нейросети</strong> — один класс ML. <span style="color:#6b6b6b;">CV-детекция, NLP-классификаторы.</span></li>
+          <li><strong>LLM</strong> — большая языковая модель. <span style="color:#6b6b6b;">Код, текст, анализ требований.</span> Заметный класс, но <span class="accent" style="font-weight:700;">не весь AI</span>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6: LLM vs classic ML comparison ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 3 · LLM vs КЛАССИЧЕСКИЙ ML</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Разные инструменты,<br>разные задачи</h2>
+    <table class="cmp" style="margin-top:36px;">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Классический ML</th>
+          <th>LLM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="left-col">Тип задачи</td>
+          <td>узкая, заранее заданная</td>
+          <td>широкий класс через язык</td>
+        </tr>
+        <tr>
+          <td class="left-col">Вход</td>
+          <td>фичи, структурированные данные</td>
+          <td>контекст, инструкции, текст</td>
+        </tr>
+        <tr>
+          <td class="left-col">Выход</td>
+          <td>предсказанное число или класс</td>
+          <td>текст / код / план / анализ</td>
+        </tr>
+        <tr>
+          <td class="left-col">Метрика</td>
+          <td>понятная, заранее определена</td>
+          <td>часто субъективная, нужна проверка</td>
+        </tr>
+        <tr>
+          <td class="left-col">Воспроизводимость</td>
+          <td>высокая</td>
+          <td>вероятностная — может варьироваться</td>
+        </tr>
+        <tr>
+          <td class="left-col">Примеры</td>
+          <td>фрод, скоринг, прогноз нагрузки</td>
+          <td>код-ревью, анализ требований, документация</td>
+        </tr>
+        <tr style="background:#fff8f8;">
+          <td class="left-col" style="color:#ff2e63;">Когда НЕ LLM</td>
+          <td style="color:#6b6b6b;">Стабильная массовая задача</td>
+          <td style="color:#ff2e63;">Когда нужна точная числовая метрика, миллионы запросов в день, воспроизводимый результат</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="position:absolute; bottom:80px; left:80px; right:80px; padding:16px 20px; background:#111; color:#fff;">
+      <span class="label" style="color:#ff2e63;">ВЫВОД</span><br>
+      <span style="font-size:22px; font-family:Georgia;">LLM — не замена ML. Это <em>другой</em> инструмент для другого класса задач.</span>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 7: Types of models — overview ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 4 · ТИПЫ МОДЕЛЕЙ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:16px; font-size:48px;">Модели различаются по назначению и архитектуре</h2>
+    <p style="font-size:18px; color:#6b6b6b; margin-top:4px; margin-bottom:14px;">Не всё, что называют «LLM», устроено и применяется одинаково.</p>
+
+    <div class="label" style="margin-bottom:10px;">ПО НАЗНАЧЕНИЮ</div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px;">
+      <div class="info-card" style="padding:14px;">
+        <h5>CHAT / INSTRUCT</h5>
+        <p style="font-size:16px;">Диалог, инструкции, объяснения, черновики.</p>
+      </div>
+      <div class="info-card" style="padding:14px;">
+        <h5>CODE</h5>
+        <p style="font-size:16px;">Код, repo-контекст, diff, тесты, зависимости.</p>
+      </div>
+      <div class="info-card" style="padding:14px;">
+        <h5>EMBEDDING</h5>
+        <p style="font-size:16px;">Текст → вектор. Semantic search и RAG.</p>
+      </div>
+      <div class="info-card" style="background:#111; color:#fff; border-color:#111; padding:14px;">
+        <h5 style="color:#ff2e63;">REASONING</h5>
+        <p style="font-size:16px;">Многошаговый анализ: баги, миграции, противоречия.</p>
+      </div>
+    </div>
+
+    <div class="label" style="margin-bottom:10px;">ПО АРХИТЕКТУРЕ</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+      <div style="padding:16px; background:#fff; border:2px solid #111;">
+        <strong style="font-family:Courier New; font-size:15px; letter-spacing:0.1em; display:block; margin-bottom:8px;">DENSE</strong>
+        <p style="font-size:16px; line-height:1.5; font-weight:500;">Весь «мозг» модели участвует в каждом токене. Проще предсказать по latency и качеству.</p>
+        <p style="font-family:Courier New; font-size:13px; margin-top:10px; color:#6b6b6b;">[token] -&gt; [full dense model] -&gt; next token</p>
+      </div>
+      <div style="padding:16px; background:#fff; border:2px solid #111;">
+        <strong style="font-family:Courier New; font-size:15px; letter-spacing:0.1em; display:block; margin-bottom:8px;">MOE · MIXTURE OF EXPERTS</strong>
+        <p style="font-size:16px; line-height:1.5; font-weight:500;">На каждый токен активируется часть «экспертов». Много параметров, но считается только часть — эффективнее.</p>
+        <p style="font-family:Courier New; font-size:13px; margin-top:10px; color:#6b6b6b;">[token] -&gt; router -&gt; [exp 2]+[exp 7] -&gt; next token</p>
+      </div>
+    </div>
+
+    <div style="padding:14px 18px; background:#111; color:#fff; border-left:6px solid #ff2e63;">
+      <p style="font-size:18px; font-weight:700;">«100B параметров» не значит «дороже в 10 раз» или «лучше во всём» — важны назначение, активные параметры, контекст, latency и tool use.</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 8: Choose right tool — examples ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 4 · ПРИМЕРЫ ВЫБОРА</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Не «самая&nbsp;умная»,<br>а подходящая</h2>
+    <div style="margin-top:48px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div style="display:flex; gap:16px; align-items:stretch;">
+          <div style="background:#111; color:#fff; padding:18px; min-width:180px; display:flex; align-items:center;">
+            <span class="label" style="color:#ff2e63;">Задача</span>
+          </div>
+          <div style="background:#fff; border:2px solid #111; padding:18px; flex:1;">
+            <p style="font-size:18px;"><strong>Классификация обращений</strong> по 8 категориям, 500K в день</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:16px; align-items:stretch;">
+          <div style="background:#00b894; color:#fff; padding:18px; min-width:180px; display:flex; align-items:center;">
+            <span class="label" style="color:#fff;">Решение</span>
+          </div>
+          <div style="background:#fff; border:2px solid #00b894; padding:18px; flex:1;">
+            <p style="font-size:18px;"><strong>Классический ML.</strong> Дешевле, стабильнее, проще валидировать.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:16px; align-items:stretch;">
+          <div style="background:#111; color:#fff; padding:18px; min-width:180px; display:flex; align-items:center;">
+            <span class="label" style="color:#ff2e63;">Задача</span>
+          </div>
+          <div style="background:#fff; border:2px solid #111; padding:18px; flex:1;">
+            <p style="font-size:18px;"><strong>Найти похожий тикет</strong> в архиве из 200K инцидентов</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:16px; align-items:stretch;">
+          <div style="background:#00b894; color:#fff; padding:18px; min-width:180px; display:flex; align-items:center;">
+            <span class="label" style="color:#fff;">Решение</span>
+          </div>
+          <div style="background:#fff; border:2px solid #00b894; padding:18px; flex:1;">
+            <p style="font-size:18px;"><strong>Embedding-модель + векторный поиск.</strong> LLM здесь не нужен.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:16px; align-items:stretch;">
+          <div style="background:#111; color:#fff; padding:18px; min-width:180px; display:flex; align-items:center;">
+            <span class="label" style="color:#ff2e63;">Задача</span>
+          </div>
+          <div style="background:#fff; border:2px solid #111; padding:18px; flex:1;">
+            <p style="font-size:18px;"><strong>Документация по фиче</strong> в legacy-сервисе без описания</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:16px; align-items:stretch;">
+          <div style="background:#ff2e63; color:#fff; padding:18px; min-width:180px; display:flex; align-items:center;">
+            <span class="label" style="color:#fff;">Решение</span>
+          </div>
+          <div style="background:#fff; border:2px solid #ff2e63; padding:18px; flex:1;">
+            <p style="font-size:18px;"><strong>Code-LLM в CLI-среде.</strong> Это наш кейс — к нему вернёмся в части Ⅲ.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Section divider for NN block ============ -->
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5</div>
+    <div class="slide-num"></div>
+    <div class="content">
+      <div class="num">— 02 —</div>
+      <h2>Как работает<br>нейросеть</h2>
+      <div class="sub">Проследим путь одного запроса от текста до ответа. На реальном примере.</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: NN as a function ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ИНТУИЦИЯ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Нейросеть —<br>это&nbsp;<span class="accent">функция</span></h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px; margin-top:32px; align-items:center;">
+      <div>
+        <svg viewBox="0 0 500 320" style="width:100%;">
+          <!-- Input -->
+          <rect x="10" y="120" width="100" height="80" fill="#111" stroke="#111"/>
+          <text x="60" y="155" text-anchor="middle" font-family="Courier New" font-size="13" fill="#ff2e63">INPUT</text>
+          <text x="60" y="178" text-anchor="middle" font-family="Georgia" font-size="14" fill="#fff">текст, код</text>
+
+          <!-- Arrow -->
+          <line x1="115" y1="160" x2="160" y2="160" stroke="#111" stroke-width="2"/>
+          <polygon points="160,155 170,160 160,165" fill="#111"/>
+
+          <!-- Network -->
+          <rect x="175" y="40" width="200" height="240" fill="#f4f1ea" stroke="#111" stroke-width="2"/>
+          <text x="275" y="68" text-anchor="middle" font-family="Courier New" font-size="13" letter-spacing="2" fill="#111">f(x; θ)</text>
+          <!-- nodes -->
+          <g>
+            <circle cx="210" cy="110" r="10" fill="#fff" stroke="#111" stroke-width="1.5"/>
+            <circle cx="210" cy="160" r="10" fill="#fff" stroke="#111" stroke-width="1.5"/>
+            <circle cx="210" cy="210" r="10" fill="#fff" stroke="#111" stroke-width="1.5"/>
+            <circle cx="275" cy="100" r="10" fill="#ff2e63" stroke="#ff2e63"/>
+            <circle cx="275" cy="150" r="10" fill="#ff2e63" stroke="#ff2e63"/>
+            <circle cx="275" cy="200" r="10" fill="#ff2e63" stroke="#ff2e63"/>
+            <circle cx="275" cy="250" r="10" fill="#ff2e63" stroke="#ff2e63"/>
+            <circle cx="340" cy="130" r="10" fill="#fff" stroke="#111" stroke-width="1.5"/>
+            <circle cx="340" cy="180" r="10" fill="#fff" stroke="#111" stroke-width="1.5"/>
+            <circle cx="340" cy="230" r="10" fill="#fff" stroke="#111" stroke-width="1.5"/>
+          </g>
+          <g stroke="#888" stroke-width="0.8" opacity="0.6">
+            <line x1="220" y1="110" x2="265" y2="100"/>
+            <line x1="220" y1="110" x2="265" y2="150"/>
+            <line x1="220" y1="110" x2="265" y2="200"/>
+            <line x1="220" y1="160" x2="265" y2="100"/>
+            <line x1="220" y1="160" x2="265" y2="150"/>
+            <line x1="220" y1="160" x2="265" y2="250"/>
+            <line x1="220" y1="210" x2="265" y2="150"/>
+            <line x1="220" y1="210" x2="265" y2="200"/>
+            <line x1="220" y1="210" x2="265" y2="250"/>
+            <line x1="285" y1="100" x2="330" y2="130"/>
+            <line x1="285" y1="150" x2="330" y2="130"/>
+            <line x1="285" y1="150" x2="330" y2="180"/>
+            <line x1="285" y1="200" x2="330" y2="180"/>
+            <line x1="285" y1="200" x2="330" y2="230"/>
+            <line x1="285" y1="250" x2="330" y2="230"/>
+          </g>
+
+          <!-- Arrow -->
+          <line x1="380" y1="160" x2="425" y2="160" stroke="#111" stroke-width="2"/>
+          <polygon points="425,155 435,160 425,165" fill="#111"/>
+
+          <!-- Output -->
+          <rect x="395" y="120" width="100" height="80" fill="#ff2e63" stroke="#ff2e63"/>
+          <text x="445" y="155" text-anchor="middle" font-family="Courier New" font-size="13" fill="#fff">OUTPUT</text>
+          <text x="445" y="178" text-anchor="middle" font-family="Georgia" font-size="14" fill="#fff">ответ</text>
+
+          <!-- theta label -->
+          <text x="275" y="302" text-anchor="middle" font-family="Courier New" font-size="13" fill="#111" opacity="0.7">θ — миллиарды настроенных параметров</text>
+        </svg>
+      </div>
+      <div>
+        <ul class="dash">
+          <li><strong>x</strong> — вход: текст, код, инструкция.</li>
+          <li><strong>θ</strong> — параметры. Числа, настроенные на обучении.</li>
+          <li><strong>f(x; θ)</strong> — выход: следующий токен, embedding, классификация.</li>
+        </ul>
+        <div style="margin-top:32px; padding:20px; background:#fff; border:2px solid #111;">
+          <p style="font-size:18px; line-height:1.5;">В обычной программе поведение задаётся <strong>кодом</strong>.<br>В нейросети — <strong class="accent">архитектурой + параметрами</strong>.<br><br>Поэтому модель умеет обобщать, но её поведение менее прозрачно.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Training vs Inference ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ДВА РЕЖИМА</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Обучение&nbsp;≠&nbsp;использование</h2>
+    <div class="two-col" style="margin-top:40px;">
+      <div style="border:2px solid #111; padding:28px; background:#fff;">
+        <span class="pill outline">ОБУЧЕНИЕ · TRAINING</span>
+        <h3 style="margin-top:16px; margin-bottom:12px;">Параметры настраиваются</h3>
+        <ul class="dash" style="font-size:18px;">
+          <li>Миллионы примеров → предсказания → ошибка → коррекция</li>
+          <li>Происходит до того, как мы получили модель</li>
+          <li>Очень дорого. Делается редко.</li>
+        </ul>
+        <div style="margin-top:16px; padding:14px; background:#f4f1ea; border-left:4px solid #111; font-size:17px; font-weight:500;">
+          <strong>Параметры</strong> — числа внутри модели, которые задают, какие связи она считает сильными.
+        </div>
+      </div>
+      <div style="border:2px solid #ff2e63; padding:28px; background:#ff2e63; color:#fff;">
+        <span class="pill" style="background:#fff; color:#ff2e63;">ИНФЕРЕНС · INFERENCE</span>
+        <h3 style="margin-top:16px; margin-bottom:12px;">Параметры применяются</h3>
+        <ul class="dash" style="font-size:18px;">
+          <li>Получили контекст → применили готовые θ → ответ</li>
+          <li>Происходит каждый раз, когда мы пишем в GigaCode</li>
+          <li>Модель <strong>не учится</strong> на нашем проекте в момент диалога</li>
+        </ul>
+        <div style="margin-top:16px; padding:14px; background:rgba(255,255,255,0.15); border-left:4px solid #fff; font-size:17px; font-weight:500; color:#fff;">
+          Во время ответа эти числа не меняются — модель только применяет уже настроенные связи к текущему контексту.
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; bottom:80px; left:80px; right:80px; padding:18px; background:#111; color:#fff;">
+      <span class="label" style="color:#ff2e63;">ПОЧЕМУ ЭТО ВАЖНО</span>
+      <p style="font-size:20px; margin-top:6px;">Модель не «запоминает» наш репозиторий между сессиями. Если знание о проекте нужно — оно должно <strong>попасть в контекст</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Real example — refresh token (intro) ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ЖИВОЙ ПРИМЕР</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Возьмём один&nbsp;запрос<br>и проследим путь</h2>
+    <div style="margin-top:48px; padding:32px; background:#fff; border:2px solid #111; max-width:1050px;">
+      <span class="label">ЗАПРОС К МОДЕЛИ</span>
+      <p style="font-family:Courier New; font-size:24px; margin-top:14px; line-height:1.4;">
+        Функция <span style="background:#ff2e63; color:#fff; padding:2px 6px;">refreshToken</span> возвращает <span style="background:#111; color:#fff; padding:2px 6px;">500</span> вместо <span style="background:#111; color:#fff; padding:2px 6px;">401</span>. Почему?
+      </p>
+    </div>
+    <div style="margin-top:48px;">
+      <div class="label" style="margin-bottom:16px;">ЧТО ПРОИЗОЙДЁТ ВНУТРИ МОДЕЛИ</div>
+      <div class="flow" style="margin-top:0;">
+        <div class="flow-step">
+          <div class="step-n">01 · TOKENIZATION</div>
+          <h6>Текст → токены</h6>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">02 · EMBEDDING</div>
+          <h6>Токены → векторы</h6>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">03 · ATTENTION</div>
+          <h6>Что на что смотрит</h6>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">04 · DECODING</div>
+          <h6>Вероятности → токен</h6>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">05 · REPEAT</div>
+          <h6>Токен за токеном</h6>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Step 1 — Tokenization ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ШАГ 1 · ТОКЕНИЗАЦИЯ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Текст не&nbsp;равен словам</h2>
+    <div style="margin-top:32px;">
+      <div class="label">ИСХОДНАЯ ФРАЗА</div>
+      <p style="font-family:Courier New; font-size:22px; margin-top:8px;">Функция refreshToken возвращает 500 вместо 401</p>
+    </div>
+    <div style="margin-top:32px;">
+      <div class="label">КАК ЭТО ВИДИТ МОДЕЛЬ</div>
+      <div style="margin-top:14px;">
+        <span class="token">Фун</span><span class="token">кция</span><span class="token kw">refresh</span><span class="token kw">Token</span><span class="token">возвра</span><span class="token">щает</span><span class="token y">500</span><span class="token">вместо</span><span class="token y">401</span>
+      </div>
+    </div>
+    <div style="margin-top:48px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+      <div class="info-card">
+        <div class="num">9</div>
+        <h5>ТОКЕНОВ ВМЕСТО 6 СЛОВ</h5>
+        <p>Русское «Функция» бьётся на два токена. Camel­Case-идентификатор тоже разрывается.</p>
+      </div>
+      <div class="info-card">
+        <div class="num">≠</div>
+        <h5>ЯЗЫК ВЛИЯЕТ</h5>
+        <p>Русский, редкие термины и код в среднем стоят дороже токенов, чем английский текст.</p>
+      </div>
+      <div class="info-card" style="background:#ff2e63; color:#fff; border-color:#ff2e63;">
+        <div class="num" style="color:#fff;">$</div>
+        <h5 style="color:#fff;">ТАК СЧИТАЕТСЯ ВСЁ</h5>
+        <p>Цена, лимиты контекста, скорость. Всё в токенах, не в символах и не в словах.</p>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-size:15px; color:#6b6b6b; font-family:'Courier New',monospace;">* Числа ориентировочные — точное разбиение зависит от токенизатора конкретной модели.</p>
+  </section>
+
+  <!-- ============ SLIDE: Step 2 — Embeddings ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ШАГ 2 · EMBEDDINGS</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Каждый токен —<br>точка в&nbsp;<span class="accent">пространстве смыслов</span></h2>
+    <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:48px; margin-top:32px; align-items:center;">
+      <div>
+        <svg viewBox="0 0 500 360" style="width:100%;">
+          <!-- axes -->
+          <line x1="40" y1="320" x2="480" y2="320" stroke="#111" stroke-width="1.5"/>
+          <line x1="40" y1="320" x2="40" y2="20" stroke="#111" stroke-width="1.5"/>
+          <text x="475" y="340" font-family="Courier New" font-size="11" fill="#111" text-anchor="end">признак A</text>
+          <text x="50" y="22" font-family="Courier New" font-size="11" fill="#111">признак B</text>
+
+          <!-- cluster: auth/security -->
+          <ellipse cx="150" cy="120" rx="100" ry="55" fill="#ff2e63" opacity="0.12" stroke="#ff2e63" stroke-dasharray="3 3"/>
+          <circle cx="120" cy="105" r="6" fill="#ff2e63"/>
+          <text x="130" y="100" font-family="Courier New" font-size="13" fill="#111">refreshToken</text>
+          <circle cx="190" cy="135" r="6" fill="#ff2e63"/>
+          <text x="200" y="130" font-family="Courier New" font-size="13" fill="#111">auth</text>
+          <circle cx="100" cy="155" r="6" fill="#ff2e63"/>
+          <text x="110" y="158" font-family="Courier New" font-size="13" fill="#111">401</text>
+          <circle cx="175" cy="95" r="6" fill="#ff2e63"/>
+          <text x="185" y="92" font-family="Courier New" font-size="13" fill="#111">JWT</text>
+
+          <!-- cluster: errors -->
+          <ellipse cx="370" cy="200" rx="90" ry="50" fill="#00b894" opacity="0.12" stroke="#00b894" stroke-dasharray="3 3"/>
+          <circle cx="350" cy="190" r="6" fill="#00b894"/>
+          <text x="358" y="188" font-family="Courier New" font-size="13" fill="#111">500</text>
+          <circle cx="395" cy="215" r="6" fill="#00b894"/>
+          <text x="403" y="213" font-family="Courier New" font-size="13" fill="#111">exception</text>
+          <circle cx="350" cy="225" r="6" fill="#00b894"/>
+          <text x="358" y="240" font-family="Courier New" font-size="13" fill="#111">stack trace</text>
+
+          <!-- cluster: random unrelated -->
+          <circle cx="280" cy="290" r="6" fill="#888"/>
+          <text x="290" y="294" font-family="Courier New" font-size="13" fill="#888">cooking</text>
+          <circle cx="80" cy="280" r="6" fill="#888"/>
+          <text x="90" y="284" font-family="Courier New" font-size="13" fill="#888">sunset</text>
+        </svg>
+      </div>
+      <div>
+        <ul class="dash">
+          <li>Embedding — вектор из сотен или тысяч чисел.</li>
+          <li>В этом пространстве <strong>близкие по смыслу</strong> токены оказываются рядом.</li>
+          <li><span class="accent">refresh­Token, auth, JWT, 401</span> — попадут в один кластер.</li>
+          <li><span style="color:#00b894;">500, exception, stack trace</span> — в соседний.</li>
+          <li><span style="color:#888;">cooking, sunset</span> — где-то далеко.</li>
+        </ul>
+        <div style="margin-top:24px; padding:18px; background:#111; color:#fff;">
+          <p style="font-size:18px; font-weight:700;">Это <strong class="accent">та же геометрия</strong>, на которой строится <strong>RAG</strong>: ищем похожие куски документов по близости в этом пространстве.</p>
+        </div>
+        <div style="margin-top:14px; padding:14px 16px; background:#fff; border:2px dashed #111; font-size:16px; font-weight:500; line-height:1.5;">
+          <strong>Где здесь параметры?</strong><br>
+          Параметры — настроенные числа внутри модели. Они не хранят «refreshToken&nbsp;=&nbsp;JWT», но влияют на то, что refreshToken, auth, JWT, 401 оказываются <em>близко</em>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Step 3 — Attention ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ШАГ 3 · ATTENTION</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Какие токены<br><span class="accent">смотрят</span> на какие</h2>
+    <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:48px; margin-top:24px;">
+      <div>
+        <div class="label" style="margin-bottom:12px;">УПРОЩЁННАЯ МАТРИЦА ВНИМАНИЯ</div>
+        <svg viewBox="0 0 540 340" style="width:100%;">
+          <!-- header row -->
+          <g font-family="Courier New" font-size="12" fill="#111">
+            <text x="120" y="20" text-anchor="middle">refresh</text>
+            <text x="180" y="20" text-anchor="middle">Token</text>
+            <text x="240" y="20" text-anchor="middle">возвр.</text>
+            <text x="300" y="20" text-anchor="middle">500</text>
+            <text x="360" y="20" text-anchor="middle">вместо</text>
+            <text x="420" y="20" text-anchor="middle">401</text>
+          </g>
+          <!-- left labels -->
+          <g font-family="Courier New" font-size="12" fill="#111">
+            <text x="80" y="55" text-anchor="end">refresh</text>
+            <text x="80" y="95" text-anchor="end">Token</text>
+            <text x="80" y="135" text-anchor="end">возвр.</text>
+            <text x="80" y="175" text-anchor="end">500</text>
+            <text x="80" y="215" text-anchor="end">вместо</text>
+            <text x="80" y="255" text-anchor="end">401</text>
+          </g>
+          <!-- heatmap cells: rows = current token, cols = what it attends to. opacity = strength -->
+          <!-- row refresh -->
+          <rect x="90" y="35" width="60" height="30" fill="#ff2e63" opacity="0.9"/>
+          <rect x="150" y="35" width="60" height="30" fill="#ff2e63" opacity="0.75"/>
+          <rect x="210" y="35" width="60" height="30" fill="#ff2e63" opacity="0.1"/>
+          <rect x="270" y="35" width="60" height="30" fill="#ff2e63" opacity="0.1"/>
+          <rect x="330" y="35" width="60" height="30" fill="#ff2e63" opacity="0.05"/>
+          <rect x="390" y="35" width="60" height="30" fill="#ff2e63" opacity="0.15"/>
+
+          <!-- row Token -->
+          <rect x="90" y="75" width="60" height="30" fill="#ff2e63" opacity="0.7"/>
+          <rect x="150" y="75" width="60" height="30" fill="#ff2e63" opacity="0.95"/>
+          <rect x="210" y="75" width="60" height="30" fill="#ff2e63" opacity="0.15"/>
+          <rect x="270" y="75" width="60" height="30" fill="#ff2e63" opacity="0.1"/>
+          <rect x="330" y="75" width="60" height="30" fill="#ff2e63" opacity="0.1"/>
+          <rect x="390" y="75" width="60" height="30" fill="#ff2e63" opacity="0.25"/>
+
+          <!-- row возвращает -->
+          <rect x="90" y="115" width="60" height="30" fill="#ff2e63" opacity="0.4"/>
+          <rect x="150" y="115" width="60" height="30" fill="#ff2e63" opacity="0.45"/>
+          <rect x="210" y="115" width="60" height="30" fill="#ff2e63" opacity="0.7"/>
+          <rect x="270" y="115" width="60" height="30" fill="#ff2e63" opacity="0.8"/>
+          <rect x="330" y="115" width="60" height="30" fill="#ff2e63" opacity="0.1"/>
+          <rect x="390" y="115" width="60" height="30" fill="#ff2e63" opacity="0.55"/>
+
+          <!-- row 500 -->
+          <rect x="90" y="155" width="60" height="30" fill="#ff2e63" opacity="0.65"/>
+          <rect x="150" y="155" width="60" height="30" fill="#ff2e63" opacity="0.7"/>
+          <rect x="210" y="155" width="60" height="30" fill="#ff2e63" opacity="0.55"/>
+          <rect x="270" y="155" width="60" height="30" fill="#ff2e63" opacity="0.9"/>
+          <rect x="330" y="155" width="60" height="30" fill="#ff2e63" opacity="0.1"/>
+          <rect x="390" y="155" width="60" height="30" fill="#ff2e63" opacity="0.85"/>
+
+          <!-- row вместо -->
+          <rect x="90" y="195" width="60" height="30" fill="#ff2e63" opacity="0.2"/>
+          <rect x="150" y="195" width="60" height="30" fill="#ff2e63" opacity="0.2"/>
+          <rect x="210" y="195" width="60" height="30" fill="#ff2e63" opacity="0.3"/>
+          <rect x="270" y="195" width="60" height="30" fill="#ff2e63" opacity="0.6"/>
+          <rect x="330" y="195" width="60" height="30" fill="#ff2e63" opacity="0.7"/>
+          <rect x="390" y="195" width="60" height="30" fill="#ff2e63" opacity="0.5"/>
+
+          <!-- row 401 -->
+          <rect x="90" y="235" width="60" height="30" fill="#ff2e63" opacity="0.75"/>
+          <rect x="150" y="235" width="60" height="30" fill="#ff2e63" opacity="0.75"/>
+          <rect x="210" y="235" width="60" height="30" fill="#ff2e63" opacity="0.3"/>
+          <rect x="270" y="235" width="60" height="30" fill="#ff2e63" opacity="0.85"/>
+          <rect x="330" y="235" width="60" height="30" fill="#ff2e63" opacity="0.4"/>
+          <rect x="390" y="235" width="60" height="30" fill="#ff2e63" opacity="0.95"/>
+
+          <!-- legend -->
+          <text x="90" y="295" font-family="Courier New" font-size="11" fill="#111">тёмный = сильная связь</text>
+          <rect x="90" y="305" width="20" height="14" fill="#ff2e63" opacity="0.15"/>
+          <rect x="115" y="305" width="20" height="14" fill="#ff2e63" opacity="0.4"/>
+          <rect x="140" y="305" width="20" height="14" fill="#ff2e63" opacity="0.7"/>
+          <rect x="165" y="305" width="20" height="14" fill="#ff2e63" opacity="0.95"/>
+        </svg>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:12px;">ЧТО ЗДЕСЬ ВИДНО</div>
+        <ul class="dash" style="font-size:19px;">
+          <li>Между <strong>500</strong> и <strong>401</strong> — высокий вес связи: для модели это сигнал пары ошибок.</li>
+          <li><strong>refresh</strong> и <strong>Token</strong> имеют высокую взаимную связь — сигнал единого концепта.</li>
+          <li><strong>401</strong> активно связан с <strong>refresh­Token</strong> — для модели это сигнал auth-контекста.</li>
+        </ul>
+        <div style="margin-top:28px; padding:18px; background:#fff; border:2px solid #111;">
+          <p style="font-size:18px; line-height:1.5;"><strong>Attention</strong> — механизм, который позволяет модели <strong class="accent">учитывать связи</strong> между токенами в контексте.<br><br>Длинный шумный контекст «размазывает» attention. Поэтому большое окно ≠ хороший ответ.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Step 4 — Decoding ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · ШАГ 4 · DECODING</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Не выбирает ответ.<br><span class="accent">Строит токен&nbsp;за&nbsp;токеном.</span></h2>
+    <div style="margin-top:32px;">
+      <div class="label">ПОСЛЕ КОНТЕКСТА «функция refreshToken возвращает 500 вместо 401. ПОТОМУ ЧТО»</div>
+      <p style="font-size:18px; margin-top:8px; color:#6b6b6b;">Модель оценивает распределение вероятностей следующего токена</p>
+    </div>
+
+    <div style="margin-top:32px; display:grid; grid-template-columns: 2fr 1fr; gap:48px;">
+      <div>
+        <svg viewBox="0 0 600 280" style="width:100%;">
+          <!-- bars -->
+          <!-- bar 1 -->
+          <rect x="40" y="50" width="380" height="32" fill="#ff2e63"/>
+          <text x="50" y="72" font-family="Courier New" font-size="16" fill="#fff">внутри</text>
+          <text x="430" y="72" font-family="Courier New" font-size="14" fill="#111">0.38</text>
+
+          <!-- bar 2 -->
+          <rect x="40" y="92" width="260" height="32" fill="#ff2e63" opacity="0.78"/>
+          <text x="50" y="114" font-family="Courier New" font-size="16" fill="#fff">обработ</text>
+          <text x="310" y="114" font-family="Courier New" font-size="14" fill="#111">0.26</text>
+
+          <!-- bar 3 -->
+          <rect x="40" y="134" width="160" height="32" fill="#ff2e63" opacity="0.55"/>
+          <text x="50" y="156" font-family="Courier New" font-size="16" fill="#fff">токен</text>
+          <text x="210" y="156" font-family="Courier New" font-size="14" fill="#111">0.16</text>
+
+          <!-- bar 4 -->
+          <rect x="40" y="176" width="80" height="32" fill="#ff2e63" opacity="0.38"/>
+          <text x="50" y="198" font-family="Courier New" font-size="16" fill="#fff">сервис</text>
+          <text x="130" y="198" font-family="Courier New" font-size="14" fill="#111">0.08</text>
+
+          <!-- bar 5 -->
+          <rect x="40" y="218" width="50" height="32" fill="#ff2e63" opacity="0.25"/>
+          <text x="50" y="240" font-family="Courier New" font-size="16" fill="#fff">в</text>
+          <text x="100" y="240" font-family="Courier New" font-size="14" fill="#111">0.05</text>
+
+          <!-- axis line -->
+          <line x1="40" y1="44" x2="40" y2="260" stroke="#111" stroke-width="1"/>
+          <text x="40" y="20" font-family="Courier New" font-size="12" fill="#111" letter-spacing="1.5">P(next token)</text>
+        </svg>
+        <div style="padding:12px 14px; margin-top:10px; background:#fff; border:2px solid #111;">
+          <span class="label">REPEAT</span>
+          <p style="font-size:15px; margin-top:6px; font-weight:500;">Выбранный токен → в контекст. Цикл повторяется до конца ответа.</p>
+        </div>
+      </div>
+      <div>
+        <div style="padding:14px 16px; background:#111; color:#fff; margin-bottom:14px;">
+          <span class="label" style="color:#ff2e63;">ВЫБОР</span>
+          <p style="font-size:17px; margin-top:6px; font-weight:700;">Модель не «знает истину». Она сэмплит следующий токен из распределения.</p>
+        </div>
+        <div class="label" style="margin-bottom:10px;">КАК УПРАВЛЯЕМ ВЫБОРКОЙ</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="padding:12px 14px; background:#fff; border-left:4px solid #ff2e63;">
+            <strong style="font-size:16px; font-family:Courier New;">Temperature</strong>
+            <p style="font-size:15px; margin-top:4px; color:#333; font-weight:500;">Резкость распределения. 0 — стабильно (для кода). Выше — разнообразнее.</p>
+          </div>
+          <div style="padding:12px 14px; background:#fff; border-left:4px solid #f6c945;">
+            <strong style="font-size:16px; font-family:Courier New;">Top-k</strong>
+            <p style="font-size:15px; margin-top:4px; color:#333; font-weight:500;">Только k самых вероятных токенов. k=3 → только «внутри», «обработ», «токен».</p>
+          </div>
+          <div style="padding:12px 14px; background:#fff; border-left:4px solid #00b894;">
+            <strong style="font-size:16px; font-family:Courier New;">Top-p</strong>
+            <p style="font-size:15px; margin-top:4px; color:#333; font-weight:500;">Минимальный набор с суммарной вероятностью ≥ p. p=0.8 → берём верхние пока сумма ≥ 80%.</p>
+          </div>
+        </div>
+        <div style="margin-top:10px; padding:12px 14px; background:#f4f1ea; border-left:4px solid #111; font-size:15px; font-weight:700;">
+          Управляют стилем выборки, не истинностью ответа.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Top-k / Top-p example ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 5 · DECODING · ФИЛЬТРЫ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:14px; font-size:46px;">Top-k и Top-p:<br>два фильтра перед выбором токена</h2>
+    <p style="font-size:20px; color:#6b6b6b; margin-top:6px; font-weight:700;">Модель уже посчитала вероятности. Теперь мы решаем, из каких кандидатов ей разрешено выбирать.</p>
+    <div style="margin-top:16px; padding:12px 16px; background:#111; color:#fff; font-family:'Courier New',monospace; font-size:22px; display:inline-block;">
+      Сегодня на завтрак я съел...
+    </div>
+
+    <div class="temperature-strip">
+      <div class="label-cell">
+        <strong>TEMPERATURE</strong>
+        <p>Меняет резкость распределения до сэмплинга.</p>
+      </div>
+      <div class="cold">
+        <strong>t = 0.1</strong>
+        <p>«кашу» становится почти очевидным выбором. Ответ стабильнее.</p>
+      </div>
+      <div class="hot">
+        <strong>t = 1.2</strong>
+        <p>Хвост вариантов получает больше шансов. Ответ разнообразнее.</p>
+      </div>
+    </div>
+
+    <div class="sampling-grid">
+      <div class="sampling-panel">
+        <div class="label" style="margin-bottom:8px;">МЕНЮ МОДЕЛИ</div>
+        <table class="sampling-table">
+          <thead>
+            <tr><th>кандидат</th><th>P</th><th>сумма</th></tr>
+          </thead>
+          <tbody>
+            <tr class="keep"><td>кашу</td><td>40%</td><td>40%</td></tr>
+            <tr class="keep"><td>яблоко</td><td>30%</td><td>70%</td></tr>
+            <tr class="keep"><td>бутерброд</td><td>15%</td><td>85%</td></tr>
+            <tr><td>яичницу</td><td>10%</td><td>95%</td></tr>
+            <tr><td>пиццу</td><td>3%</td><td>98%</td></tr>
+            <tr><td>кирпич</td><td>1%</td><td>99%</td></tr>
+            <tr><td>облако</td><td>1%</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sampling-panel hot">
+        <div class="label" style="color:#ff2e63;">TOP-K = 3</div>
+        <ul class="sampling-list">
+          <li><span class="yes">✓</span> кашу&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40%</li>
+          <li><span class="yes">✓</span> яблоко&nbsp;&nbsp;&nbsp;&nbsp;30%</li>
+          <li><span class="yes">✓</span> бутерброд&nbsp;15%</li>
+          <li><span class="no">✕</span> яичницу</li>
+          <li><span class="no">✕</span> пиццу</li>
+          <li><span class="no">✕</span> кирпич</li>
+          <li><span class="no">✕</span> облако</li>
+        </ul>
+        <p class="sampling-note">Top-k берёт фиксированное число кандидатов.<br>k = 3 значит: «оставь только 3 самых вероятных».</p>
+      </div>
+
+      <div class="sampling-panel green">
+        <div class="label" style="color:#00b894;">TOP-P = 0.85</div>
+        <ul class="sampling-list">
+          <li><span class="yes">✓</span> кашу&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;40% → сумма 40%</li>
+          <li><span class="yes">✓</span> яблоко&nbsp;&nbsp;&nbsp;&nbsp;30% → сумма 70%</li>
+          <li><span class="yes">✓</span> бутерброд&nbsp;15% → <span class="stop">85% STOP</span></li>
+          <li><span class="no">✕</span> яичницу</li>
+          <li><span class="no">✕</span> пиццу</li>
+          <li><span class="no">✕</span> кирпич</li>
+          <li><span class="no">✕</span> облако</li>
+        </ul>
+        <p class="sampling-note">Top-p берёт столько кандидатов, сколько нужно, чтобы набрать порог вероятности.<br>p = 0.85 значит: «оставь ядро вариантов, которое вместе даёт 85%».</p>
+      </div>
+    </div>
+
+    <div style="position:absolute; bottom:40px; left:64px; right:64px; display:grid; grid-template-columns:1fr 330px; gap:18px; align-items:end;">
+      <div style="padding:14px 18px; background:#111; color:#fff; border-left:6px solid #ff2e63;">
+        <p style="font-size:20px; font-weight:800;">Top-k режет по количеству. Top-p режет по суммарной вероятности. После этого модель сэмплит из оставшихся вариантов.</p>
+      </div>
+      <div style="font-family:'Courier New',monospace; font-size:13px; color:#6b6b6b; line-height:1.35;">
+        На практике эти фильтры управляют разнообразием ответа, но не проверяют его истинность.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Summary of how it works ============ -->
+  <section class="slide quote-slide">
+    <div class="slide-kicker"><span class="dot" style="background:#fff;"></span>БЛОК 5 · ВЫВОД</div>
+    <div class="slide-num"></div>
+    <div class="content">
+      <h2>LLM — это не&nbsp;разум<br>в&nbsp;коробке.</h2>
+      <h2 style="margin-top:24px; opacity:0.85;">Это <em>вероятностная</em> система<br>обработки контекста.</h2>
+      <div class="who">→ ОТСЮДА ВСЁ ОСТАЛЬНОЕ В ЭТОМ ДОКЛАДЕ</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION DIVIDER: PART II ============ -->
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>ПЕРЕХОД</div>
+    <div class="slide-num"></div>
+    <div class="content">
+      <div class="num">— 03 —</div>
+      <h2>От теории<br>к&nbsp;контексту</h2>
+      <div class="sub">Теперь понятно, как работает модель. Следующий вопрос: что мы в неё кладём?</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Context — what is it ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 6 · КОНТЕКСТ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Контекст — это всё,<br>что модель видит <span class="accent">сейчас</span></h2>
+    <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap:48px; margin-top:32px; align-items:center;">
+      <div>
+        <svg viewBox="0 0 520 380" style="width:100%;">
+          <!-- outer window -->
+          <rect x="20" y="20" width="480" height="340" fill="#fff" stroke="#111" stroke-width="2"/>
+          <text x="36" y="44" font-family="Courier New" font-size="12" letter-spacing="2" fill="#111">CONTEXT WINDOW</text>
+
+          <!-- layers stacked -->
+          <rect x="40" y="60" width="440" height="40" fill="#111"/>
+          <text x="56" y="86" font-family="Courier New" font-size="13" fill="#ff2e63">SYSTEM</text>
+          <text x="160" y="86" font-family="Georgia" font-size="14" fill="#fff">базовые инструкции модели</text>
+
+          <rect x="40" y="106" width="440" height="40" fill="#f4f1ea" stroke="#111"/>
+          <text x="56" y="132" font-family="Courier New" font-size="13" fill="#111">PROJECT</text>
+          <text x="160" y="132" font-family="Georgia" font-size="14" fill="#111">GIGACODE.md · правила проекта · skills</text>
+
+          <rect x="40" y="152" width="440" height="40" fill="#f4f1ea" stroke="#111"/>
+          <text x="56" y="178" font-family="Courier New" font-size="13" fill="#111">HISTORY</text>
+          <text x="160" y="178" font-family="Georgia" font-size="14" fill="#111">предыдущие сообщения сессии</text>
+
+          <rect x="40" y="198" width="440" height="40" fill="#f4f1ea" stroke="#111"/>
+          <text x="56" y="224" font-family="Courier New" font-size="13" fill="#111">FILES</text>
+          <text x="160" y="224" font-family="Georgia" font-size="14" fill="#111">подгруженные файлы и фрагменты</text>
+
+          <rect x="40" y="244" width="440" height="40" fill="#f4f1ea" stroke="#111"/>
+          <text x="56" y="270" font-family="Courier New" font-size="13" fill="#111">TOOL RESULTS</text>
+          <text x="180" y="270" font-family="Georgia" font-size="14" fill="#111">результаты shell, поиска, MCP</text>
+
+          <rect x="40" y="290" width="440" height="40" fill="#ff2e63" stroke="#ff2e63"/>
+          <text x="56" y="316" font-family="Courier New" font-size="13" fill="#fff">USER PROMPT</text>
+          <text x="180" y="316" font-family="Georgia" font-size="14" fill="#fff">наш текущий запрос</text>
+        </svg>
+      </div>
+      <div>
+        <ul class="dash">
+          <li>Это <strong>не</strong> только наш последний запрос.</li>
+          <li>В контекст попадает всё: системный промпт, история, файлы, результаты tools, GIGACODE.md.</li>
+          <li>Окно ограничено — измеряется в токенах.</li>
+          <li><strong>Большой контекст ≠ хороший контекст.</strong></li>
+        </ul>
+        <div style="margin-top:32px; padding:18px; background:#111; color:#fff;">
+          <p style="font-size:19px; line-height:1.5;">Качество ответа часто зависит не от того, какая у нас модель, а от того, что мы положили <strong class="accent">в контекст</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Context vs Memory vs RAG ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 6 · РАЗГРАНИЧЕНИЕ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Три похожих слова</h2>
+    <div class="cards-3" style="margin-top:36px;">
+      <div class="info-card" style="background:#ff2e63; color:#fff; border-color:#ff2e63;">
+        <h5 style="color:#fff;">CONTEXT</h5>
+        <p style="font-size:19px;">То, что модель видит <strong>прямо сейчас</strong> в окне.</p>
+        <p style="font-size:17px; margin-top:12px; opacity:0.9;">Например: текущий чат, прикреплённый файл, результат команды.</p>
+        <p style="font-size:15px; margin-top:8px; opacity:0.8;">Исчезает после закрытия сессии.</p>
+      </div>
+      <div class="info-card">
+        <h5>MEMORY</h5>
+        <p style="font-size:19px;">Внешний механизм, который <strong>сохраняет факты между сессиями</strong> и подставляет их в контекст.</p>
+        <p style="font-size:17px; margin-top:12px; color:#6b6b6b;">Например: «в этом проекте используем Maven», «клиент — банк, данные чувствительные».</p>
+      </div>
+      <div class="info-card">
+        <h5>RAG</h5>
+        <p style="font-size:19px;"><strong>Retrieval-Augmented Generation.</strong> Перед ответом ищем релевантные документы и добавляем в контекст.</p>
+        <p style="font-size:17px; margin-top:12px; color:#6b6b6b;">Например: нашли 3 страницы из Confluence по запросу — положили в контекст.</p>
+      </div>
+    </div>
+    <div style="position:absolute; bottom:80px; left:80px; right:80px; padding:18px; background:#111; color:#fff;">
+      <p style="font-size:20px; font-weight:700;">Практически это <strong class="accent">один вопрос</strong>: что попадёт в окно модели перед ответом?</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE: Block 6 — tokens deep dive (cost / context) ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 7 · ТОКЕНЫ И ЦЕНА</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Что съедает<br>контекстное окно</h2>
+    <div style="margin-top:32px;">
+      <div class="label">ОДНО И ТО ЖЕ В ТОКЕНАХ (ориентировочно)</div>
+    </div>
+    <div style="margin-top:24px;">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+        <div style="width:220px; font-family:Courier New; font-size:17px; font-weight:700;">Английский текст</div>
+        <div style="height:32px; width:120px; background:#00b894;"></div>
+        <div style="font-family:Courier New; font-size:18px; font-weight:700;">~ 1 000 токенов</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+        <div style="width:220px; font-family:Courier New; font-size:17px; font-weight:700;">Русский текст</div>
+        <div style="height:32px; width:240px; background:#f6c945;"></div>
+        <div style="font-family:Courier New; font-size:18px; font-weight:700;">~ 2 000 токенов</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+        <div style="width:220px; font-family:Courier New; font-size:17px; font-weight:700;">JSON / лог</div>
+        <div style="height:32px; width:380px; background:#ff2e63;"></div>
+        <div style="font-family:Courier New; font-size:18px; font-weight:700;">~ 3 200 токенов</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+        <div style="width:220px; font-family:Courier New; font-size:17px; font-weight:700;">Stack trace</div>
+        <div style="height:32px; width:520px; background:#111;"></div>
+        <div style="font-family:Courier New; font-size:18px; font-weight:700;">~ 4 500 токенов</div>
+      </div>
+    </div>
+    <div style="margin-top:28px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+      <div class="info-card">
+        <h5>СТОИМОСТЬ</h5>
+        <p>Платим за токены вход + выход. Логи и JSON быстро становятся дорогими.</p>
+      </div>
+      <div class="info-card">
+        <h5>КОНТЕКСТНОЕ ОКНО</h5>
+        <p>Ограничение в токенах. «128K context» — это 128K токенов, не символов.</p>
+      </div>
+      <div class="info-card">
+        <h5>LATENCY</h5>
+        <p>Чем больше токенов на вход и выход — тем дольше ответ.</p>
+      </div>
+    </div>
+    <div style="margin-top:24px; padding:16px 20px; background:#111; color:#fff; border-left:6px solid #ff2e63;">
+      <span class="label" style="color:#ff2e63;">ВЫВОД</span>
+      <p style="font-size:20px; margin-top:6px; font-weight:700;">Шумный и раздутый контекст — дороже, медленнее, модель отвечает хуже. Инженерный аргумент за <strong>чистый и точный контекст</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ============ BLOCK 8: CONTEXT MANAGEMENT — Problem ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 8 · ПРОБЛЕМА #1</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:14px; font-size:48px;">Почему «загрузи всё» ломает ответ</h2>
+    <p style="font-size:17px; color:#6b6b6b; margin-top:4px; margin-bottom:16px; font-weight:500;">Проблема не только в размере — контекст может быть шумным, противоречивым или опасным.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; align-items:stretch;">
+      <div style="padding:16px; background:#fff8f8; border-left:4px solid #ff2e63;">
+        <strong style="font-size:16px; display:block; margin-bottom:6px; font-family:Courier New; letter-spacing:0.05em;">1 · ШУМ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Всё подряд: старые docs, lock-файлы, нерелевантные тесты.<br><span style="color:#ff2e63; font-weight:700;">→ важные файлы теряются в потоке.</span></p>
+      </div>
+      <div style="padding:16px; background:#fff8f8; border-left:4px solid #ff2e63;">
+        <strong style="font-size:16px; display:block; margin-bottom:6px; font-family:Courier New; letter-spacing:0.05em;">2 · ПЕРЕПОЛНЕНИЕ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Логи, JSON, stack traces быстро съедают окно.<br><span style="color:#ff2e63; font-weight:700;">→ модель теряет нужные детали.</span></p>
+      </div>
+      <div style="padding:16px; background:#fff8f8; border-left:4px solid #ff2e63;">
+        <strong style="font-size:16px; display:block; margin-bottom:6px; font-family:Courier New; letter-spacing:0.05em;">3 · УСТАРЕВШИЙ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">README, ADR, тикет описывают прошлое.<br><span style="color:#ff2e63; font-weight:700;">→ уверенный ответ про старую версию.</span></p>
+      </div>
+      <div style="padding:16px; background:#f5f5f5; border-left:4px solid #111;">
+        <strong style="font-size:16px; display:block; margin-bottom:6px; font-family:Courier New; letter-spacing:0.05em;">4 · КОНФЛИКТ ИНСТРУКЦИЙ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">System prompt, rules, тикет и запрос говорят разное.<br><span style="font-weight:700;">→ модель выбирает компромисс, который никто не просил.</span></p>
+      </div>
+      <div style="padding:16px; background:#f5f5f5; border-left:4px solid #111;">
+        <strong style="font-size:16px; display:block; margin-bottom:6px; font-family:Courier New; letter-spacing:0.05em;">5 · PROMPT INJECTION</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Внешний документ содержит инструкции: «ignore previous rules».<br><span style="font-weight:700;">→ данные конкурируют с правилами.</span></p>
+      </div>
+      <div style="padding:16px; background:#f5f5f5; border-left:4px solid #111;">
+        <strong style="font-size:16px; display:block; margin-bottom:6px; font-family:Courier New; letter-spacing:0.05em;">6 · CONTEXT DRIFT</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Длинная сессия накапливает отменённые гипотезы и лишние outputs.<br><span style="font-weight:700;">→ агент постепенно уходит от задачи.</span></p>
+      </div>
+    </div>
+
+    <div style="position:absolute; bottom:44px; left:64px; right:64px; padding:14px 18px; background:#111; color:#fff; border-left:6px solid #ff2e63;">
+      <p style="font-size:19px; font-weight:700;">Большой контекст ≠ хороший. Хороший — минимальный, актуальный, непротиворечивый, привязанный к задаче.</p>
+    </div>
+  </section>
+
+  <!-- ============ BLOCK 8: CONTEXT MANAGEMENT — Solution ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 8 · РЕШЕНИЕ #1</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:14px; font-size:48px;">Как собрать хороший контекст</h2>
+
+    <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; align-items:stretch;">
+      <div style="padding:16px; background:#f0fdf9; border-left:4px solid #00b894;">
+        <strong style="font-size:16px; display:block; margin-bottom:8px; font-family:Courier New; letter-spacing:0.05em;">1 · СУЗИТЬ SCOPE</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Одна задача → минимальный набор файлов и фактов.</p>
+      </div>
+      <div style="padding:16px; background:#f0fdf9; border-left:4px solid #00b894;">
+        <strong style="font-size:16px; display:block; margin-bottom:8px; font-family:Courier New; letter-spacing:0.05em;">2 · ПРОВЕРИТЬ ИСТОЧНИКИ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Код и тесты показывают поведение. Тикеты и docs — намерение, но могут устареть.</p>
+      </div>
+      <div style="padding:16px; background:#f0fdf9; border-left:4px solid #00b894;">
+        <strong style="font-size:16px; display:block; margin-bottom:8px; font-family:Courier New; letter-spacing:0.05em;">3 · РАЗДЕЛИТЬ РОЛИ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Инструкции отдельно. Данные отдельно. Формат ответа отдельно.</p>
+      </div>
+      <div style="padding:16px; background:#f0fdf9; border-left:4px solid #00b894;">
+        <strong style="font-size:16px; display:block; margin-bottom:8px; font-family:Courier New; letter-spacing:0.05em;">4 · СЖАТЬ ШУМ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Логи, JSON, stack traces — в summary, если детали не нужны.</p>
+      </div>
+      <div style="padding:16px; background:#f0fdf9; border-left:4px solid #00b894;">
+        <strong style="font-size:16px; display:block; margin-bottom:8px; font-family:Courier New; letter-spacing:0.05em;">5 · ОТДЕЛИТЬ ВНЕШНИЕ ДАННЫЕ</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Jira, wiki, письма — источник фактов, а не инструкции для агента.</p>
+      </div>
+      <div style="padding:16px; background:#f0fdf9; border-left:4px solid #00b894;">
+        <strong style="font-size:16px; display:block; margin-bottom:8px; font-family:Courier New; letter-spacing:0.05em;">6 · ЗАДАТЬ РЕЖИМ CLI-АГЕНТА</strong>
+        <p style="font-size:15px; line-height:1.5; font-weight:500;">Только анализ, только план, правки после подтверждения или review-only.</p>
+      </div>
+    </div>
+
+    <div style="position:absolute; bottom:44px; left:64px; right:64px; padding:14px 18px; background:#111; color:#fff; border-left:6px solid #00b894;">
+      <p style="font-size:19px; font-weight:700;">Хороший контекст не максимальный — достаточный для задачи и проверяемый.</p>
+    </div>
+  </section>
+
+  <!-- ============ BLOCK 9: PROMPT — Problem ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 9 · ПРОБЛЕМА #2</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:16px; font-size:44px;">Даже хороший контекст<br>можно испортить плохой задачей</h2>
+
+    <div style="margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start;">
+      <div>
+        <div class="label" style="color:#ff2e63; margin-bottom:10px;">ЗАПРОС</div>
+        <div class="code-block" style="font-size:17px; background:#1a1a1a; color:#f4f1ea; line-height:1.5; margin-bottom:16px;">&gt; Напиши документацию
+  по фиче refresh-token</div>
+        <div class="label" style="margin-bottom:10px;">ЧТО ВЕРНЁТСЯ</div>
+        <div class="code-block" style="font-size:14px; border-left:4px solid #ff2e63; background:#1a1a1a; color:#f4f1ea; line-height:1.6;"><span style="color:#6b6b6b;"># Документация: refreshToken</span>
+
+refreshToken — метод обновления токена.
+Вызывается автоматически после истечения срока.
+Обращается к AuthService для проверки.
+При ошибке возвращает <span style="color:#ff2e63;">500</span>.
+
+Система поддерживает ротацию токенов.
+Рекомендуется хранить refresh_token
+в httpOnly cookie...</div>
+        <p style="font-size:15px; color:#ff2e63; margin-top:8px; font-weight:700;">↑ Выглядит связно. Факты и домыслы перемешаны.</p>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:12px;">ПОЧЕМУ ЭТО ПРОИСХОДИТ</div>
+        <ul class="dash" style="font-size:18px; line-height:1.7;">
+          <li>Нет деления «код подтверждает» vs «предположение»</li>
+          <li>Структура каждый раз разная — нечего сравнивать</li>
+          <li>Открытые вопросы теряются в тексте</li>
+          <li>Режим не указан: анализ или сразу черновик?</li>
+        </ul>
+        <div style="margin-top:24px; padding:16px; background:#fff; border-left:6px solid #ff2e63;">
+          <p style="font-size:18px; font-weight:700;">Запрос — это не спецификация. Модель додумывает формат и критерии сама.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BLOCK 9: PROMPT — Solution ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 9 · РЕШЕНИЕ #2</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Prompt — это<br><span class="accent">мини-спецификация</span></h2>
+    <div style="margin-top:28px; display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+      <div>
+        <div class="label" style="margin-bottom:12px;">ШАБЛОН ХОРОШЕГО ЗАПРОСА</div>
+        <div class="code-block" style="font-size:16px;">
+<span class="k">Цель:</span>         что нужно сделать
+<span class="k">Объект:</span>       конкретная фича / файл / задача
+<span class="k">Входные данные:</span> что есть
+<span class="k">Режим:</span>        analysis-only / plan / draft
+<span class="k">Формат вывода:</span> секции / таблица / файл
+<span class="k">Стоп-условие:</span>  когда НЕ делать следующий шаг
+        </div>
+        <div style="margin-top:16px; padding:14px; border:2px solid #111; background:#fff;">
+          <p style="font-size:17px; line-height:1.5;"><strong>Модель додумывает то, что не указано.</strong> Явный формат = меньше сюрпризов и проще проверить результат.</p>
+        </div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:12px;">ПРИМЕР — ЗАПРОС К МОДЕЛИ</div>
+        <div class="code-block" style="font-size:15px;">
+<span class="c"># Реальный запрос</span>
+
+<span class="k">Цель:</span>         обратный анализ фичи refreshToken
+<span class="k">Объект:</span>       модуль auth/token/
+<span class="k">Источник:</span>     код — первичный, тикет — вторичный
+<span class="k">Режим:</span>        analysis-only
+<span class="k">Формат вывода:</span>
+  → current flow
+  → findings by severity
+  → open questions
+<span class="k">Стоп-условие:</span> <span class="s">не писать черновик до подтверждения</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BLOCK 9: Checklist before sending ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>БЛОК 9 · ЧЕКЛИСТ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Чеклист<br>перед отправкой</h2>
+
+    <div style="margin-top:28px; display:grid; grid-template-columns:1fr; gap:12px; width:100%;">
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <span style="font-family:Courier New; font-size:24px; font-weight:700; color:#ff2e63; min-width:28px; line-height:1.2;">□</span>
+        <div>
+          <strong style="font-size:19px;">Указал цель — что именно нужно сделать.</strong>
+          <p style="font-size:16px; color:#6b6b6b; margin-top:2px; font-weight:500;">Не «посмотри», а «найди», «объясни», «набросай».</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <span style="font-family:Courier New; font-size:24px; font-weight:700; color:#ff2e63; min-width:28px; line-height:1.2;">□</span>
+        <div>
+          <strong style="font-size:19px;">Дал конкретный объект — файл, фича, модуль.</strong>
+          <p style="font-size:16px; color:#6b6b6b; margin-top:2px; font-weight:500;">Не «проект», а «auth/token/refresh.js».</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <span style="font-family:Courier New; font-size:24px; font-weight:700; color:#ff2e63; min-width:28px; line-height:1.2;">□</span>
+        <div>
+          <strong style="font-size:19px;">Указал режим: analysis-only / plan / draft.</strong>
+          <p style="font-size:16px; color:#6b6b6b; margin-top:2px; font-weight:500;">Без режима модель пишет всё сразу — нечего ревьюить на ходу.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <span style="font-family:Courier New; font-size:24px; font-weight:700; color:#ff2e63; min-width:28px; line-height:1.2;">□</span>
+        <div>
+          <strong style="font-size:19px;">Задал формат вывода — секции, таблица, severity.</strong>
+          <p style="font-size:16px; color:#6b6b6b; margin-top:2px; font-weight:500;">Проверяемый формат = проще ревью.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <span style="font-family:Courier New; font-size:24px; font-weight:700; color:#ff2e63; min-width:28px; line-height:1.2;">□</span>
+        <div>
+          <strong style="font-size:19px;">Указал стоп-условие — что не делать без согласования.</strong>
+          <p style="font-size:16px; color:#6b6b6b; margin-top:2px; font-weight:500;">«Не редактируй файлы до подтверждения».</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECAP: Part 1 ============ -->
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>ЧАСТЬ Ⅰ · ИТОГ</div>
+    <div class="slide-num"></div>
+    <h2 class="section" style="margin-top:20px;">Что унести<br>из&nbsp;части&nbsp;1</h2>
+    <div style="margin-top:32px;">
+      <div style="display:flex; gap:18px; align-items:center; margin-bottom:14px; padding:16px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <div style="font-family:Georgia,serif; font-size:48px; font-weight:700; color:#ff2e63; min-width:48px; line-height:1;">1</div>
+        <div>
+          <h3 style="font-size:22px; margin-bottom:4px;">LLM строит вероятностное продолжение — не достаёт истину.</h3>
+          <p style="font-size:17px; color:#6b6b6b;">Не человек, не база знаний. Следующий токен из распределения.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:18px; align-items:center; margin-bottom:14px; padding:16px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <div style="font-family:Georgia,serif; font-size:48px; font-weight:700; color:#ff2e63; min-width:48px; line-height:1;">2</div>
+        <div>
+          <h3 style="font-size:22px; margin-bottom:4px;">Качество ответа определяется качеством контекста.</h3>
+          <p style="font-size:17px; color:#6b6b6b;">Большой шумный контекст — дороже и хуже. Минимальный точный — лучше.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:18px; align-items:center; margin-bottom:14px; padding:16px 20px; background:#fff; border-left:6px solid #ff2e63;">
+        <div style="font-family:Georgia,serif; font-size:48px; font-weight:700; color:#ff2e63; min-width:48px; line-height:1;">3</div>
+        <div>
+          <h3 style="font-size:22px; margin-bottom:4px;">Prompt — это мини-спецификация: цель, источник, режим, формат, стоп-условие.</h3>
+          <p style="font-size:17px; color:#6b6b6b;">Модель додумывает то, что не указано. Явная спецификация — меньше неожиданных результатов.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:18px; align-items:center; padding:16px 20px; background:#111; color:#fff; border-left:6px solid #ff2e63;">
+        <div style="font-family:Georgia,serif; font-size:48px; font-weight:700; color:#ff2e63; min-width:48px; line-height:1;">4</div>
+        <div>
+          <h3 style="font-size:22px; margin-bottom:4px; color:#fff;">Ограничения — в процессе, не в магии промпта.</h3>
+          <p style="font-size:17px; color:#b0b0b0;">Context management — инженерная задача. Дальше: tools, MCP, workflow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hud"><div class="hud-inner">← → space · F fullscreen · S notes</div></div>
+
+<script>
+  let current = 0;
+  const slides = () => document.querySelectorAll('.slide');
+  function show(i) {
+    const all = slides();
+    if (i < 0) i = 0;
+    if (i >= all.length) i = all.length - 1;
+    all.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    current = i;
+    const p = document.getElementById('progress');
+    p.style.width = ((i + 1) / all.length * 100) + '%';
+    const sn = all[i].querySelector('.slide-num');
+    if (sn) sn.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(all.length).padStart(2, '0');
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'j') {
+      e.preventDefault(); show(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'k') {
+      e.preventDefault(); show(current - 1);
+    } else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    } else if (e.key === 'Home') { show(0);
+    } else if (e.key === 'End') { show(slides().length - 1); }
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.hud')) return;
+    if (e.clientX > window.innerWidth / 2) show(current + 1);
+    else show(current - 1);
+  });
+  window.addEventListener('load', () => {
+    const all = slides();
+    all.forEach((s, idx) => {
+      const sn = s.querySelector('.slide-num');
+      if (sn) sn.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(all.length).padStart(2, '0');
+    });
+    show(0);
+  });
+</script>
+
+</body>
+</html>
