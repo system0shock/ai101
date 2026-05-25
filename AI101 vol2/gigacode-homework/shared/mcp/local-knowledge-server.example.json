@@ -1,0 +1,24 @@
+{
+  "name": "local-knowledge",
+  "purpose": "Read-only пример MCP-сервера для домашнего задания",
+  "tools": [
+    {
+      "name": "search_notes",
+      "mode": "read-only"
+    },
+    {
+      "name": "get_note",
+      "mode": "read-only"
+    },
+    {
+      "name": "write_note",
+      "mode": "excluded"
+    }
+  ],
+  "rules": {
+    "includeTools": ["search_notes", "get_note"],
+    "excludeTools": ["write_note"],
+    "excludeToolsPrecedence": true,
+    "defaultTimeoutMs": 600000
+  }
+}
