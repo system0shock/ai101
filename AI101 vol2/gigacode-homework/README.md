@@ -35,8 +35,8 @@ gigacode --version
 3. Выберите режим:
    - разработчики начинают с `developer-track/README.md`;
    - аналитики начинают с `analyst-track/README.md`.
-4. Идите по заданиям `tasks/01-commands.md` ... `tasks/06-subagents.md`.
-5. После каждого задания сверяйтесь с `expected/` и checklist.
+4. Идите по заданиям выбранного режима: `developer-track/tasks/01-commands.md` ... `developer-track/tasks/06-subagents.md` или `analyst-track/tasks/01-commands.md` ... `analyst-track/tasks/06-subagents.md`.
+5. После каждого задания сверяйтесь с expected outputs выбранного режима: `developer-track/expected/` или `analyst-track/expected/`, и checklist.
 
 ## Правило домашки
 
