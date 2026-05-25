@@ -1,10 +1,10 @@
-# GigaCode Homework Kit Design
+# Дизайн комплекта домашнего задания GigaCode
 
-Date: 2026-05-25
+Дата: 2026-05-25
 
-## Context
+## Контекст
 
-AI101 vol.2 is a 90-minute introduction to GigaCode/Qwen Code style agentic coding tools. The lecture covers six practical levers:
+AI101 vol.2 — вводная лекция на 90 минут про инструменты agentic coding в GigaCode, форке Qwen Code. Лекция покрывает шесть практических рычагов:
 
 - Commands
 - Tools
@@ -13,28 +13,42 @@ AI101 vol.2 is a 90-minute introduction to GigaCode/Qwen Code style agentic codi
 - MCP
 - Subagents
 
-The homework kit must let attendees download a ready mini-repository and try the same ideas after the presentation. The target CLI is the GigaCode fork, so all project conventions use `.gigacode/` and `GIGACODE.md`, not `.qwen/` and `QWEN.md`.
+Комплект домашнего задания должен позволить участникам скачать готовый мини-репозиторий и после презентации попробовать те же идеи руками. Целевой инструмент — GigaCode CLI, поэтому все проектные соглашения используют `.gigacode/` и `GIGACODE.md`, а не upstream-пути `.qwen/` и `QWEN.md`.
 
-## Goal
+## Цель
 
-Create a downloadable mini-repository named `gigacode-homework/` with two guided tracks:
+Создать скачиваемый мини-репозиторий `gigacode-homework/` с двумя режимами прохождения:
 
-- Developer track: exercises on a small codebase.
-- Analyst track: exercises on product and process documentation.
+- Режим для разработчиков: упражнения на небольшом Java/Kotlin-проекте.
+- Режим для аналитиков: упражнения на продуктовой и процессной документации.
 
-Both tracks should exercise the same GigaCode concepts from the presentation, but with tasks that fit each audience. The kit should work for attendees who already have the GigaCode CLI installed.
+Оба режима должны проходить одни и те же концепции из презентации, но на разных типах задач. Комплект рассчитан на участников, у которых уже установлен GigaCode CLI.
 
-## Non-Goals
+## Нецели
 
-- Do not build an offline simulator for users without the CLI.
-- Do not require external paid services for completion.
-- Do not turn the homework into a full course or long project.
-- Do not rely on live network access for the core exercises.
-- Do not use Qwen path names in participant-facing instructions.
+- Не делать offline-симулятор для участников без CLI.
+- Не требовать внешние платные сервисы.
+- Не превращать домашку в длинный курс или полноценный проект.
+- Не полагаться на live network access для основных упражнений.
+- Не использовать Qwen-пути в инструкциях для участников.
 
-## Package Shape
+## Язык материалов
 
-Proposed top-level structure:
+Вся пользовательская документация комплекта должна быть на русском:
+
+- `README.md`
+- `README-quickstart.md`
+- `GIGACODE.md`
+- описания заданий
+- checklists
+- ожидаемые результаты
+- комментарии в учебных исходниках, если они нужны для задания
+
+Английские технические идентификаторы допустимы там, где они являются именами команд, файлов, полей конфигурации, API или кода.
+
+## Форма комплекта
+
+Предлагаемая структура:
 
 ```text
 gigacode-homework/
@@ -67,23 +81,23 @@ gigacode-homework/
     checklists/
 ```
 
-The root README explains the kit, prerequisites, expected time, and how to choose a track. Each track has its own README and numbered task files.
+Корневой `README.md` объясняет назначение комплекта, prerequisites, примерное время прохождения и выбор режима. У каждого режима есть свой `README.md` и пронумерованные файлы заданий.
 
-## GigaCode Conventions
+## Соглашения GigaCode
 
-The kit should consistently use:
+Комплект должен последовательно использовать:
 
-- `GIGACODE.md` for the base project prompt.
-- `.gigacode/commands/` for reusable prompt commands.
-- `.gigacode/skills/` for project skills.
-- `.gigacode/agents/` for named subagent definitions.
-- `.gigacode/hooks/` and a settings example for hooks.
+- `GIGACODE.md` как базовый проектный промпт.
+- `.gigacode/commands/` для reusable prompt commands.
+- `.gigacode/skills/` для проектных skills.
+- `.gigacode/agents/` для named subagents.
+- `.gigacode/hooks/` и пример settings для hooks.
 
-When the underlying concept comes from Qwen Code documentation, explain it as a GigaCode-compatible convention. Participant-facing examples should remain GigaCode-first.
+Если концепция пришла из документации Qwen Code, ее нужно описывать как совместимое соглашение GigaCode. Примеры для участников остаются GigaCode-first.
 
-## Learning Path
+## Учебный маршрут
 
-Each track has six exercises mapped to the presentation blocks:
+В каждом режиме шесть упражнений, соответствующих блокам презентации:
 
 1. Commands
 2. Tools
@@ -92,62 +106,70 @@ Each track has six exercises mapped to the presentation blocks:
 5. MCP
 6. Subagents
 
-Every exercise should include:
+Каждое упражнение содержит:
 
-- Objective
-- Files to inspect or attach with `@`
-- Suggested GigaCode prompt or command
-- Expected observable result
-- Self-check
-- Optional stretch task
+- цель
+- файлы, которые нужно посмотреть или добавить через `@`
+- рекомендуемый prompt или command для GigaCode
+- ожидаемый наблюдаемый результат
+- самопроверку
+- необязательное усложнение
 
-The exercises should be small enough to complete independently. A participant should be able to finish one track in about 45-75 minutes.
+Упражнения должны быть независимыми и короткими. Один режим должен проходиться примерно за 45-75 минут.
 
-## Developer Track
+## Режим для разработчиков
 
-The developer track uses a tiny code project with intentionally simple defects and documentation gaps.
+Режим для разработчиков использует маленький Java/Kotlin-проект с простыми дефектами, тестами и небольшими пробелами в документации.
 
-Core tasks:
+Стек:
 
-- Commands: use `@` to attach a code standard file, `!` to run tests/status, and a custom command to ask for a commit-style summary.
-- Tools: ask the agent to investigate a failing test using an explore -> verify -> edit workflow.
-- Skills: invoke or let the model discover a project skill for code review or test debugging.
-- Hooks: use a lightweight guardrail that blocks unsafe edits or asks for structured justification before changing protected files.
-- MCP: use a local/mock MCP configuration or documented example that exposes read-only project facts.
-- Subagents: delegate a focused review or test investigation to a named agent; separately demonstrate a fork-style parallel investigation if supported by the installed CLI.
+- Java/Kotlin на JVM.
+- Предпочтительно Gradle Wrapper, чтобы участник мог запускать проверки одной командой.
+- Тесты через JUnit.
+- Без внешней инфраструктуры и без сервисов, которые нужно поднимать отдельно.
+- Зависимости должны быть минимальными и уже описанными в проекте.
 
-The code project should use Python standard library code with `unittest` tests and no external dependencies. This keeps the developer track runnable from a clean checkout with `python -m unittest`.
+Если нужно выбрать один основной язык для стартовой реализации, предпочтение — Kotlin с понятными JUnit-тестами. Java можно использовать для части исходников или альтернативного задания, если это делает пример ближе к аудитории.
 
-Expected participant outputs:
+Основные задачи:
 
-- One fixed bug or small refactor.
-- A short investigation note.
-- A review summary produced with a command or skill.
-- Evidence that checks/tests were run.
+- Commands: использовать `@` для подключения code standard, `!` для запуска тестов или статуса, custom command для commit-style summary.
+- Tools: попросить агента исследовать падающий тест по схеме explore -> verify -> edit.
+- Skills: вызвать или дать модели обнаружить project skill для code review или test debugging.
+- Hooks: использовать легкий guardrail, который блокирует рискованное изменение или просит структурированное обоснование перед правкой защищенных файлов.
+- MCP: использовать локальный/mock MCP пример или документированную конфигурацию, которая дает read-only факты о проекте.
+- Subagents: делегировать focused review или test investigation named agent; отдельно показать fork-style параллельное исследование, если это поддерживается установленным CLI.
 
-## Analyst Track
+Ожидаемые результаты участника:
 
-The analyst track uses documentation artifacts instead of code: a short PRD, stakeholder notes, FAQ, and release notes with deliberate inconsistencies.
+- исправленный баг или небольшой рефакторинг
+- короткая заметка расследования
+- review summary, полученный через command или skill
+- evidence, что проверки или тесты были запущены
 
-Core tasks:
+## Режим для аналитиков
 
-- Commands: attach selected docs with `@`, run a simple shell listing with `!`, and use a custom command to summarize a document set.
-- Tools: ask the agent to search and read documents before proposing edits.
-- Skills: use a documentation review skill for consistency, ambiguity, and missing acceptance criteria.
-- Hooks: use a lightweight guardrail that enforces structured output for review notes or blocks edits to source notes.
-- MCP: use a local/mock MCP configuration or documented example that behaves like a read-only knowledge source.
-- Subagents: delegate consistency review, glossary review, or acceptance-criteria review to a named analyst agent.
+Режим для аналитиков использует документационные артефакты вместо кода: короткий PRD, stakeholder notes, FAQ и release notes с намеренно заложенными противоречиями.
 
-Expected participant outputs:
+Основные задачи:
 
-- A cleaned-up PRD or FAQ section.
-- A contradiction report.
-- A concise stakeholder summary.
-- A checklist showing how the agent used evidence from the documents.
+- Commands: подключить выбранные документы через `@`, выполнить простую shell-команду через `!`, использовать custom command для summary набора документов.
+- Tools: попросить агента сначала искать и читать документы, а потом предлагать правки.
+- Skills: использовать documentation review skill для проверки консистентности, неоднозначностей и недостающих acceptance criteria.
+- Hooks: использовать легкий guardrail, который требует структурированный формат review notes или блокирует правки исходных заметок.
+- MCP: использовать локальный/mock MCP пример или документированную конфигурацию, которая ведет себя как read-only источник знаний.
+- Subagents: делегировать consistency review, glossary review или acceptance-criteria review named analyst agent.
 
-## Shared GigaCode Assets
+Ожидаемые результаты участника:
 
-The root `.gigacode/` assets should be shared across tracks where useful:
+- очищенный раздел PRD или FAQ
+- отчет о противоречиях
+- краткое summary для стейкхолдера
+- checklist, показывающий, какие факты агент взял из документов
+
+## Общие GigaCode-активы
+
+Корневая `.gigacode/` папка содержит общие активы для обоих режимов:
 
 - Custom commands:
   - `summarize-context.md`
@@ -163,49 +185,54 @@ The root `.gigacode/` assets should be shared across tracks where useful:
   - `doc-analyst.md`
   - `consistency-reviewer.md`
 - Hooks:
-  - a simple readme-backed example hook
-  - settings snippets showing how to enable it
+  - простой пример hook с русским описанием
+  - snippets settings, показывающие включение hook
 - MCP:
-  - a local/mock configuration example
-  - a task that explains what to observe without requiring external credentials
+  - локальный/mock пример конфигурации
+  - задание, объясняющее, что наблюдать, без требования внешних credentials
 
-## Accuracy Requirements
+## Требования к точности
 
-The homework should incorporate the corrected details from `review.md` where relevant:
+Комплект должен учитывать исправления из `review.md`, где они относятся к заданиям:
 
-- Use "Built-in Skills" rather than "Built-in workflows" when referring to `/review`, `/loop`, and `/qc-helper`.
-- Include `/plan`, memory commands, `/btw`, and `/summary` in command reference material when useful.
-- Mention `read_many_files` as a batch-reading tool if it exists in the target CLI.
-- For skills, describe the `name` field accurately enough for practical use and include `disable-model-invocation: true` as an opt-in skill pattern.
-- For hooks, include exit-code semantics and required `permissionDecision` / `permissionDecisionReason` fields when showing PreToolUse output.
-- For MCP, clarify `excludeTools` precedence over `includeTools`, tool blocking through permissions, `/mcp auth`, and default timeout.
-- For subagents, distinguish named agents from fork subagents: named agents block the parent and start without parent history; forks run in background and inherit parent context when supported.
+- Называть `/review`, `/loop` и `/qc-helper` встроенными skills, а не workflows.
+- Упоминать `/plan`, memory commands, `/btw` и `/summary` в справочном материале по commands, когда это уместно.
+- Упоминать `read_many_files` как batch-reading tool, если он есть в целевом CLI.
+- Для skills практично описать правило для поля `name` и показать `disable-model-invocation: true` как opt-in skill pattern.
+- Для hooks при показе PreToolUse output включить semantics exit codes и обязательные поля `permissionDecision` / `permissionDecisionReason`.
+- Для MCP уточнить приоритет `excludeTools` над `includeTools`, блокировку tools через permissions, `/mcp auth` и default timeout.
+- Для subagents различать named agents и fork subagents: named agents блокируют parent и стартуют без parent history; forks идут в фоне и наследуют parent context, если это поддержано CLI.
 
-These points do not all need to become full exercises, but examples should not contradict them.
+Не все эти пункты обязаны стать отдельными упражнениями, но примеры не должны им противоречить.
 
-## Verification
+## Проверка готового комплекта
 
-The final kit should be checked by:
+Перед раздачей нужно проверить:
 
-- Reading all participant-facing Markdown for Qwen path leakage.
-- Running the developer track tests from a clean checkout.
-- Running any local scripts used by hooks or checks.
-- Verifying that task files reference existing paths.
-- Verifying that expected outputs match the seeded tasks.
-- Creating a zip archive or confirming the folder is ready to zip.
+- Все пользовательские Markdown-файлы на русском.
+- Нет ли случайных `.qwen/` или `QWEN.md` в participant-facing инструкциях.
+- Developer-track тесты запускаются из чистой копии.
+- Локальные scripts для hooks/checks запускаются.
+- Файлы заданий ссылаются на существующие пути.
+- Expected outputs соответствуют зашитым задачам.
+- Папка готова к zip-архиву или zip уже создан.
 
-## Risks
+## Риски
 
-- The GigaCode fork may differ from upstream Qwen command names or config schema. The kit should label uncertain integration points as examples and keep core exercises independent of external services.
-- MCP can become too heavy for homework. Keep MCP read-only and local/mock by default.
-- Hooks can make the first-run experience brittle. Keep hooks optional or clearly scoped to one exercise.
-- Two tracks can drift apart. Use the same six-exercise structure in both tracks so the teaching spine stays aligned.
+- GigaCode fork может отличаться от upstream Qwen по именам команд или schema config. Неочевидные integration points нужно помечать как examples, а core exercises держать независимыми от внешних сервисов.
+- MCP легко сделать слишком тяжелым для домашки. По умолчанию MCP должен быть read-only и local/mock.
+- Hooks могут сделать первый запуск хрупким. Hooks лучше оставить optional или ограничить одним упражнением.
+- Два режима могут разойтись. Нужно сохранять одинаковую структуру из шести упражнений в обоих режимах.
+- JVM-стек может потребовать установленную JDK. Quickstart должен явно указать минимальную версию JDK и команду проверки окружения.
 
-## Approval State
+## Статус согласования
 
-The user approved the guided mini-repo approach and requested two modes:
+Пользователь одобрил guided mini-repo подход и уточнил:
 
-- Developer mode for code work.
-- Analyst mode for documentation work.
+- нужен режим для разработчиков с работой по коду;
+- нужен режим для аналитиков с работой по документации;
+- стек разработчиков — Java/Kotlin;
+- вся документация комплекта должна быть на русском;
+- комплект должен использовать GigaCode fork conventions: `.gigacode/` и `GIGACODE.md`.
 
-This design is ready to become an implementation plan after user review.
+После ревью этого spec можно переходить к implementation plan.
