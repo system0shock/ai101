@@ -1,6 +1,6 @@
 {
   "name": "local-knowledge",
-  "purpose": "Read-only пример MCP-сервера для домашнего задания",
+  "purpose": "Пример MCP-сервера только для чтения в домашнем задании",
   "tools": [
     {
       "name": "search_notes",

@@ -3,17 +3,13 @@
     "PreToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "python .gigacode/hooks/protect_sources.py"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .gigacode/hooks/protect_sources.py"
+          }
+        ]
       }
     ]
-  },
-  "mcpServers": {
-    "local-knowledge": {
-      "command": "python",
-      "args": ["shared/mcp/local_knowledge_server.py"],
-      "includeTools": ["search_notes", "get_note"],
-      "excludeTools": ["write_note"],
-      "timeout": 600000
-    }
   }
 }

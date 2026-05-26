@@ -1,14 +1,16 @@
-# MCP exercise reference
+# Справка к упражнению MCP
 
-В этом комплекте MCP не требует внешних credentials.
+В этом комплекте MCP не требует внешних учетных данных.
+
+`local-knowledge-server.example.json` -- концептуальный пример, а не процесс сервера. Его не нужно копировать в `settings.example.json` как готовую настройку.
 
 Что нужно понять:
 
-- MCP server добавляет внешние tools и sources.
+- MCP-сервер добавляет внешние tools и источники.
 - `includeTools` открывает только выбранные tools.
 - `excludeTools` имеет приоритет над `includeTools`.
-- Permissions могут блокировать `mcp__server__tool_name` или весь `mcp__server`.
-- `/mcp auth` используется для OAuth, если remote MCP требует авторизацию.
-- Default timeout для MCP server: `600000` ms.
+- Права доступа могут блокировать `mcp__server__tool_name` или весь `mcp__server`.
+- `/mcp auth` используется для OAuth, если удаленный MCP требует авторизацию.
+- Таймаут по умолчанию для MCP-сервера: `600000` ms.
 
-В заданиях MCP используется как read-only концепция, чтобы не расширять blast radius.
+В заданиях MCP используется как концепция только для чтения, чтобы не расширять область влияния.

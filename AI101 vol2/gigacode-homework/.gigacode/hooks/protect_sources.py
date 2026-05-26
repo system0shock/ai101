@@ -8,6 +8,16 @@ PROTECTED_PARTS = [
 ]
 
 
+def decision_output(decision: str, reason: str) -> dict:
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": decision,
+            "permissionDecisionReason": reason,
+        }
+    }
+
+
 def main() -> int:
     raw = sys.stdin.read()
     try:
@@ -16,22 +26,32 @@ def main() -> int:
         print("Не удалось прочитать JSON hook payload", file=sys.stderr)
         return 2
 
-    path = str(payload.get("path") or payload.get("file_path") or "")
+    tool_input = payload.get("tool_input")
+    if not isinstance(tool_input, dict):
+        tool_input = {}
+
+    path = str(
+        tool_input.get("file_path")
+        or tool_input.get("path")
+        or payload.get("file_path")
+        or payload.get("path")
+        or ""
+    )
     normalized = path.replace("\\", "/")
 
     for protected in PROTECTED_PARTS:
         if protected in normalized:
-            response = {
-                "permissionDecision": "deny",
-                "permissionDecisionReason": f"Файл {protected} защищен в учебном комплекте. Создайте заметку в expected/ или предложите patch в ответе.",
-            }
+            response = decision_output(
+                "deny",
+                f"Файл {protected} защищен в учебном комплекте. Создайте заметку в expected/ или предложите patch в ответе.",
+            )
             print(json.dumps(response, ensure_ascii=False))
             return 0
 
-    response = {
-        "permissionDecision": "ask",
-        "permissionDecisionReason": "Учебный hook просит подтвердить изменение файла.",
-    }
+    response = decision_output(
+        "ask",
+        "Учебный hook просит подтвердить изменение файла.",
+    )
     print(json.dumps(response, ensure_ascii=False))
     return 0
 
