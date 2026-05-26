@@ -4,7 +4,7 @@ description: Использовать, когда задача требует с
 disable-model-invocation: true
 ---
 
-# Evidence First Skill
+# Навык evidence-first
 
 Этот skill вызывается явно, когда нужно принудительно отделить исследование от изменения.
 

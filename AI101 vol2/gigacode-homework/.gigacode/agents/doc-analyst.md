@@ -1,6 +1,6 @@
 ---
 name: doc-analyst
-description: Named agent для анализа одного документа в analyst-track
+description: Именованный агент для анализа одного документа в analyst-track
 model: inherit
 approvalMode: plan
 tools:

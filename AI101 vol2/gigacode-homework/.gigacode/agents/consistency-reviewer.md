@@ -1,6 +1,6 @@
 ---
 name: consistency-reviewer
-description: Named agent для поиска противоречий между несколькими документами
+description: Именованный агент для поиска противоречий между несколькими документами
 model: inherit
 approvalMode: plan
 tools:

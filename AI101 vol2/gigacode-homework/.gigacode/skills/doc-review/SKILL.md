@@ -3,7 +3,7 @@ name: doc-review
 description: Использовать для анализа PRD, FAQ, release notes и stakeholder notes в analyst-track
 ---
 
-# Documentation Review Skill
+# Навык проверки документации
 
 Проверяй документы на консистентность и применимость.
 
@@ -16,7 +16,7 @@ description: Использовать для анализа PRD, FAQ, release no
 
 ## Формат ответа
 
-- Evidence
+- Доказательства
 - Противоречия
 - Недостающие решения
 - Предложенная правка

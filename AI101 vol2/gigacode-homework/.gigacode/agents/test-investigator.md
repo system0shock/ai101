@@ -1,6 +1,6 @@
 ---
 name: test-investigator
-description: Named agent для расследования падающих JVM-тестов
+description: Именованный агент для расследования падающих JVM-тестов
 model: inherit
 approvalMode: plan
 tools:
