@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>AI101 часть 2 · Рабочий набор</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --ink: #111111;
+    --paper: #ffffff;
+    --accent: #ff2e63;
+    --accent-2: #00b894;
+    --accent-3: #f6c945;
+    --muted: #626262;
+    --line: #1a1a1a;
+    --term: #101010;
+    --term-line: #2b2b2b;
+    --term-fg: #f4f1ea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    overflow: hidden;
+    padding: 58px 72px 48px;
+    background: var(--bg);
+  }
+
+  .slide.active { display: block; }
+  .slide.center.active { display: flex; align-items: center; }
+
+  .slide-kicker {
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .slide-kicker .dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 10px;
+    background: var(--accent);
+    vertical-align: middle;
+  }
+
+  .slide-num {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    color: var(--muted);
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+  }
+
+  h1, h2, h3 { font-weight: 700; letter-spacing: -0.03em; }
+
+  h1 {
+    font-size: 168px;
+    line-height: 0.88;
+  }
+
+  h2 {
+    font-size: 86px;
+    line-height: 0.96;
+  }
+
+  h3 {
+    font-size: 40px;
+    line-height: 1.08;
+  }
+
+  p, li {
+    font-size: 25px;
+    line-height: 1.35;
+  }
+
+  code, .mono {
+    font-family: "Courier New", monospace;
+  }
+
+  code {
+    padding: 0 0.18em;
+    background: rgba(17,17,17,0.08);
+  }
+
+  .accent { color: var(--accent); }
+  .green { color: var(--accent-2); }
+  .yellow { color: var(--accent-3); }
+
+  .title-slide,
+  .section-slide {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .title-slide .slide-kicker,
+  .section-slide .slide-kicker { color: var(--paper); }
+  .title-slide .slide-num,
+  .section-slide .slide-num { color: #8d8d8d; }
+
+  .title-slide .meta {
+    position: absolute;
+    top: 78px;
+    left: 78px;
+    color: #8d8d8d;
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .title-slide .stack {
+    position: absolute;
+    left: 78px;
+    right: 78px;
+    bottom: 78px;
+  }
+
+  .title-slide .subtitle {
+    max-width: 980px;
+    margin-top: 34px;
+    color: #d5d5d5;
+    font-size: 31px;
+    line-height: 1.28;
+  }
+
+  .accent-mark {
+    position: absolute;
+    top: 76px;
+    right: 76px;
+    width: 190px;
+    height: 190px;
+  }
+
+  .section-slide.active {
+    display: flex;
+    align-items: center;
+  }
+
+  .section-slide .content {
+    width: 100%;
+    padding: 0 78px;
+  }
+
+  .section-slide .num {
+    margin-bottom: 26px;
+    color: var(--accent);
+    font-family: "Courier New", monospace;
+    font-size: 28px;
+    letter-spacing: 0.2em;
+  }
+
+  .section-slide h2 {
+    max-width: 1120px;
+    font-size: 126px;
+    line-height: 0.92;
+  }
+
+  .section-slide .sub {
+    max-width: 900px;
+    margin-top: 32px;
+    color: #bdbdbd;
+    font-size: 30px;
+    line-height: 1.25;
+  }
+
+  .quote-slide {
+    background: var(--accent);
+    color: var(--paper);
+  }
+
+  .quote-slide.active {
+    display: flex;
+    align-items: center;
+  }
+
+  .quote-slide .content { padding: 0 72px; }
+  .quote-slide h2 { max-width: 1160px; font-size: 106px; line-height: 0.94; }
+  .quote-slide .slide-num { color: rgba(255,255,255,0.72); }
+  .quote-slide .slide-kicker { color: var(--paper); }
+
+  .lead {
+    max-width: 1040px;
+    margin-top: 32px;
+    font-size: 40px;
+    line-height: 1.28;
+  }
+
+  .label {
+    color: var(--muted);
+    font-family: "Courier New", monospace;
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 42px;
+    margin-top: 34px;
+  }
+
+  .cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 34px;
+  }
+
+  .cols-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-top: 30px;
+  }
+
+  .col-title {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid currentColor;
+    font-family: "Courier New", monospace;
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    min-height: 220px;
+    padding: 30px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .card.dark {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .card.accent {
+    background: var(--accent);
+    color: var(--paper);
+    border-color: var(--accent);
+  }
+
+  .card.yellow {
+    background: var(--accent-3);
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .card h3,
+  .card h4 {
+    margin-bottom: 14px;
+    font-size: 40px;
+    line-height: 1.05;
+  }
+
+  .card h5 {
+    margin-bottom: 12px;
+    color: var(--accent);
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .card h5 small {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .card.dark h5,
+  .card.accent h5 { color: var(--paper); }
+
+  .card p,
+  .card li {
+    font-size: 27px;
+    line-height: 1.32;
+  }
+
+  .num-card {
+    font-family: Georgia, serif;
+    font-size: 74px;
+    line-height: 0.9;
+    font-weight: 700;
+  }
+
+  ul.dash {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul.dash li {
+    position: relative;
+    margin-bottom: 18px;
+    padding-left: 34px;
+    font-size: 30px;
+    line-height: 1.26;
+  }
+
+  ul.dash li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .compact li { font-size: 24px; margin-bottom: 11px; }
+
+  .big-list li {
+    font-size: 38px;
+    line-height: 1.18;
+    margin-bottom: 26px;
+  }
+
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 18px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pill.outline {
+    background: transparent;
+    color: var(--ink);
+    border: 2px solid var(--ink);
+  }
+
+  .pill.accent { background: var(--accent); }
+  .pill.green { background: var(--accent-2); }
+  .pill.yellow { background: var(--accent-3); color: var(--ink); }
+
+  table.cmp {
+    width: 100%;
+    margin-top: 38px;
+    border-collapse: collapse;
+  }
+
+  table.cmp th,
+  table.cmp td {
+    padding: 24px 20px;
+    border-bottom: 2px solid rgba(17,17,17,0.32);
+    text-align: left;
+    vertical-align: top;
+    font-size: 27px;
+    line-height: 1.28;
+  }
+
+  table.cmp th {
+    border-bottom: 3px solid var(--ink);
+    font-family: "Courier New", monospace;
+    font-size: 19px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  table.cmp .left-col {
+    width: 26%;
+    font-family: "Courier New", monospace;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    margin-top: 34px;
+  }
+
+  .flow-step {
+    flex: 1;
+    min-height: 158px;
+    padding: 22px 18px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-right: 0;
+  }
+
+  .flow-step:last-child { border-right: 2px solid var(--ink); }
+
+  .flow-step .step-n {
+    margin-bottom: 10px;
+    color: var(--accent);
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+  }
+
+  .flow-step h4 {
+    margin-bottom: 8px;
+    font-size: 30px;
+    line-height: 1.06;
+  }
+
+  .flow-step p {
+    color: var(--muted);
+    font-size: 21px;
+    line-height: 1.28;
+  }
+
+  .code-block {
+    margin-top: 22px;
+    padding: 22px 26px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: "Courier New", monospace;
+    font-size: 23px;
+    line-height: 1.35;
+    white-space: pre-wrap;
+  }
+
+  .code-block .c { color: #8b949e; }
+  .code-block .k { color: #ff79c6; }
+  .code-block .s { color: #50fa7b; }
+  .code-block .v { color: #8be9fd; }
+
+  .map {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr 1.1fr;
+    gap: 24px;
+    align-items: center;
+    margin-top: 34px;
+  }
+
+  .map-core {
+    min-height: 270px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    font-size: 56px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .map-stack {
+    display: grid;
+    gap: 16px;
+  }
+
+  .map-item {
+    padding: 18px 22px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    font-size: 25px;
+    line-height: 1.2;
+  }
+
+  .terminal {
+    margin-top: 28px;
+    background: var(--term);
+    color: var(--term-fg);
+    border: 2px solid var(--ink);
+    box-shadow: 10px 10px 0 var(--accent);
+    font-family: "Courier New", monospace;
+  }
+
+  .terminal-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 18px;
+    min-height: 62px;
+    padding: 12px 18px;
+    border-bottom: 2px solid var(--term-line);
+    background: #171717;
+  }
+
+  .term-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+  }
+
+  .term-logo {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--accent);
+    transform: rotate(45deg);
+  }
+
+  .run-demo {
+    min-width: 206px;
+    min-height: 44px;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--paper);
+    font-family: "Courier New", monospace;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .run-demo:hover,
+  .run-demo:focus {
+    background: var(--paper);
+    color: var(--ink);
+    outline: 3px solid var(--accent-3);
+  }
+
+  .term-body {
+    min-height: 440px;
+    padding: 22px 24px;
+    font-size: 23px;
+    line-height: 1.36;
+  }
+
+  .term-line {
+    display: none;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+  }
+
+  .terminal[data-step="0"] .term-line:nth-child(-n+1),
+  .terminal[data-step="1"] .term-line:nth-child(-n+2),
+  .terminal[data-step="2"] .term-line:nth-child(-n+3),
+  .terminal[data-step="3"] .term-line:nth-child(-n+4),
+  .terminal[data-step="4"] .term-line:nth-child(-n+5),
+  .terminal[data-step="5"] .term-line:nth-child(-n+6),
+  .terminal[data-step="6"] .term-line:nth-child(-n+7),
+  .terminal[data-step="7"] .term-line:nth-child(-n+8),
+  .terminal[data-step="8"] .term-line:nth-child(-n+9),
+  .terminal[data-step="9"] .term-line:nth-child(-n+10),
+  .terminal[data-step="10"] .term-line:nth-child(-n+11) { display: block; }
+
+  .prompt { color: var(--accent-3); }
+  .agent { color: #8be9fd; }
+  .tool { color: var(--accent-2); }
+  .warn { color: var(--accent-3); }
+  .bad { color: #ff6b8a; }
+  .ok { color: #50fa7b; }
+  .dim { color: #a0a0a0; }
+  .anno { color: #8a8a8a; font-style: italic; }
+
+  .ig {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 32px;
+    min-height: 260px;
+  }
+  .ig-node {
+    min-width: 210px;
+    padding: 26px 34px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    font-size: 28px;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .ig-node.dark { background: var(--ink); color: var(--paper); }
+  .ig-node.red { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+  .ig-node.green { background: var(--accent-2); color: var(--paper); border-color: var(--accent-2); }
+  .ig-node.yel { background: var(--accent-3); color: var(--ink); }
+  .ig-arr {
+    padding: 0 20px;
+    font-size: 36px;
+    color: var(--accent);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .ig-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ig-note {
+    margin-top: 24px;
+    font-size: 26px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* ═══════════════════════════════════════
+     Entrance animations
+  ═══════════════════════════════════════ */
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes breathe {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,46,99,0); }
+    50%     { box-shadow: 0 0 0 16px rgba(255,46,99,.1); }
+  }
+
+  .slide.active h2 {
+    animation: riseIn .40s cubic-bezier(.22,.61,.36,1) both .05s;
+  }
+  .slide.active .lead {
+    animation: riseIn .40s cubic-bezier(.22,.61,.36,1) both .14s;
+  }
+  .slide.active .flow,
+  .slide.active .cols-3,
+  .slide.active .cols-4,
+  .slide.active .two-col,
+  .slide.active .map,
+  .slide.active .ig,
+  .slide.active table.cmp,
+  .slide.active ul.dash,
+  .slide.active .pill-row,
+  .slide.active .terminal,
+  .slide.active .code-block {
+    animation: riseIn .40s cubic-bezier(.22,.61,.36,1) both .20s;
+  }
+  .slide.active .ig-note {
+    animation: riseIn .40s cubic-bezier(.22,.61,.36,1) both .32s;
+  }
+  .title-slide.active h1 {
+    animation: riseIn .52s cubic-bezier(.22,.61,.36,1) both .04s;
+  }
+  .title-slide.active .subtitle {
+    animation: riseIn .52s cubic-bezier(.22,.61,.36,1) both .18s;
+  }
+  .section-slide.active .num {
+    animation: riseIn .36s cubic-bezier(.22,.61,.36,1) both;
+  }
+  .section-slide.active h2 {
+    animation: riseIn .48s cubic-bezier(.22,.61,.36,1) both .09s;
+  }
+  .section-slide.active .sub {
+    animation: riseIn .48s cubic-bezier(.22,.61,.36,1) both .22s;
+  }
+  .quote-slide.active h2 {
+    animation: riseIn .54s cubic-bezier(.22,.61,.36,1) both .06s;
+  }
+
+  /* ═══════════════════════════════════════
+     Dark slide dot-grid texture
+  ═══════════════════════════════════════ */
+  .section-slide {
+    background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .quote-slide {
+    background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  /* ═══════════════════════════════════════
+     Card hover lift
+  ═══════════════════════════════════════ */
+  .card {
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 5px 5px 0 var(--ink); }
+  .card.dark:hover  { box-shadow: 5px 5px 0 var(--accent); }
+  .card.accent:hover { transform: translateY(-3px); box-shadow: 5px 5px 0 rgba(0,0,0,.2); }
+  .card.yellow:hover { box-shadow: 5px 5px 0 var(--ink); }
+
+  /* ═══════════════════════════════════════
+     Infographic node shadow
+  ═══════════════════════════════════════ */
+  .ig-node {
+    box-shadow: 3px 3px 0 rgba(17,17,17,.28);
+    transition: transform .15s ease;
+  }
+  .ig-node.dark  { box-shadow: 3px 3px 0 var(--accent); }
+  .ig-node.red   { box-shadow: 3px 3px 0 rgba(0,0,0,.18); }
+  .ig-node.green { box-shadow: 3px 3px 0 rgba(0,0,0,.18); }
+  .ig-node.yel   { box-shadow: 3px 3px 0 var(--ink); }
+
+  /* ═══════════════════════════════════════
+     Flow step hover
+  ═══════════════════════════════════════ */
+  .flow-step {
+    transition: background .18s ease, transform .18s ease;
+  }
+  .flow-step:hover { background: #f8f5ee; transform: translateY(-2px); }
+
+  /* ═══════════════════════════════════════
+     Map core: breathing pulse
+  ═══════════════════════════════════════ */
+  .map-core { animation: breathe 4s ease-in-out infinite; }
+
+  /* ═══════════════════════════════════════
+     Pill hover
+  ═══════════════════════════════════════ */
+  .pill { transition: transform .14s ease; }
+  .pill:hover { transform: translateY(-2px); }
+
+  /* ═══════════════════════════════════════
+     Progress bar glow
+  ═══════════════════════════════════════ */
+  .progress {
+    box-shadow: 0 0 10px rgba(255,46,99,.55), 0 0 22px rgba(255,46,99,.18);
+  }
+
+  .top-hud {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    z-index: 100;
+    transform: translateX(-50%);
+    padding: 7px 14px;
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    height: 3px;
+    background: var(--accent);
+    transition: width 0.25s ease;
+  }
+
+  @media print {
+    html, body { overflow: visible; background: #fff; }
+    .slide { position: relative; display: block !important; height: 100vh; page-break-after: always; }
+    .top-hud, .progress { display: none; }
+    .term-line { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+  <section class="slide title-slide active">
+    <div class="meta">AI 101 · GIGACODE · 2026</div>
+    <div class="slide-num"></div>
+    <svg class="accent-mark" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+      <path d="M100 8 L188 100 L100 192 L12 100 Z" stroke="#ff2e63" stroke-width="10"/>
+      <path d="M100 44 L152 100 L100 156 L48 100 Z" fill="#ff2e63"/>
+    </svg>
+    <div class="stack">
+      <div style="position:relative; display:inline-block;">
+        <h1>AI101</h1>
+        <span style="position:absolute; top:18px; right:-82px; font-family:'Courier New',monospace; font-size:22px; letter-spacing:0.1em; color:#8d8d8d; text-transform:uppercase; white-space:nowrap;">vol. 2</span>
+      </div>
+      <div style="font-size:68px; font-weight:700; letter-spacing:-0.03em; line-height:1; margin-top:10px; color:var(--accent);">Tools of the Trade</div>
+      <div class="subtitle" style="margin-top:28px;">Как управлять агентом через команды, инструменты, навыки, хуки (hooks), MCP и субагенты.</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Карта</div><div class="slide-num"></div>
+    <h2>Шесть инструментов<br><span class="accent">GigaCode</span></h2>
+    <div class="cols-3">
+      <div class="card"><h5>Commands<br><small>Команды</small></h5><p><code>/</code>, <code>@</code>, <code>!</code> и пользовательские команды как воспроизводимая точка входа в сценарий.</p></div>
+      <div class="card dark"><h5>Tools<br><small>Инструменты</small></h5><p>Действия агента: читать, искать, запускать оболочку, менять файлы, обращаться к внешним источникам.</p></div>
+      <div class="card"><h5>Skills<br><small>Навыки</small></h5><p>Дополнительные инструкции и практики через подключаемые файлы <code>SKILL.md</code>.</p></div>
+      <div class="card"><h5>Hooks<br><small>Хуки</small></h5><p>Предсказуемые реакции на события жизненного цикла агента.</p></div>
+      <div class="card accent"><h5>MCP</h5><p>Внешний слой инструментов и данных через подключённые серверы.</p></div>
+      <div class="card"><h5>Subagents<br><small>Субагенты</small></h5><p>Субагенты-специалисты и фоновые ответвления для делегирования частей задачи.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Карта</div><div class="slide-num"></div>
+    <h2>Что готовите вы,<br>а что — у <span class="accent">модели</span></h2>
+    <div class="map">
+      <div class="map-stack">
+        <div class="map-item"><strong>Вы готовите</strong><br>команды, навыки, MCP-серверы, хуки, права на инструменты</div>
+        <div class="map-item"><strong>Среда даёт контекст</strong><br><code>GIGACODE.md</code>, файлы, история, разрешения</div>
+      </div>
+      <div class="map-core">Модель<br>выбирает<br>следующий шаг</div>
+      <div class="map-stack">
+        <div class="map-item"><strong>Среда исполняет</strong><br>инструменты, MCP-вызовы, субагенты</div>
+        <div class="map-item"><strong>Среда контролирует</strong><br>хуки разрешают, блокируют, добавляют факты</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide quote-slide">
+    <div class="slide-kicker"><span class="dot" style="background:#fff;"></span>Главная мысль</div><div class="slide-num"></div>
+    <div class="content">
+      <h2>Не объясняй модели правила — настрой среду</h2>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Блок 1</div><div class="slide-num"></div>
+    <div class="content">
+      <div class="num">— 01 —</div>
+      <h2>Commands</h2>
+      <div class="sub">Команды — язык управления агентом: режимы, контекст и готовые сценарии в одно действие.</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Команды · что это</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">команды?</span></h2>
+    <p class="lead">Команды — это то, как вы обращаетесь к агенту: переключаете режимы, добавляете контекст, запускаете готовые сценарии.</p>
+    <div class="ig">
+      <div class="ig-node dark" style="min-width:80px;">Вы</div>
+      <div class="ig-arr">→</div>
+      <div class="ig-col">
+        <div class="ig-node red" style="min-width:230px;"><code>/compress</code>&nbsp;&nbsp;<span style="font-size:18px;opacity:.85">управление сеансом</span></div>
+        <div class="ig-node" style="min-width:230px;"><code>@api.md</code>&nbsp;&nbsp;<span style="font-size:18px;color:var(--muted)">файл в контекст</span></div>
+        <div class="ig-node yel" style="min-width:230px;"><code>!git status</code>&nbsp;&nbsp;<span style="font-size:18px;">вывод оболочки</span></div>
+        <div class="ig-node" style="min-width:230px;"><code>/git:commit</code>&nbsp;&nbsp;<span style="font-size:18px;color:var(--muted)">мини-сценарий</span></div>
+      </div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node green" style="min-width:130px;">Агент<br>получает<br>задачу</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Команды · обзор</div><div class="slide-num"></div>
+    <h2>Три входа<br>и один паттерн</h2>
+    <div class="cols-4">
+      <div class="card accent"><div class="num-card">/</div><p>Управление GigaCode: сеанс, инструменты, навыки, модель, настройки.</p></div>
+      <div class="card"><div class="num-card">@</div><p>Добавить файл или директорию в текущий разговор.</p></div>
+      <div class="card dark"><div class="num-card">!</div><p>Выполнить shell-команду или перейти в режим оболочки.</p></div>
+      <div class="card yellow"><h5>свои</h5><p>Markdown-сценарий запроса с параметрами и вставками.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Команды через /</div><div class="slide-num"></div>
+    <h2>Slash-команды:<br><span class="accent">категории и режимы</span></h2>
+    <table class="cmp">
+      <tr><th>Категория</th><th>Команды</th><th>Зачем</th></tr>
+      <tr><td class="left-col">Сеанс</td><td><code>/init</code>, <code>/compress</code>, <code>/resume</code>, <code>/recap</code>, <code>/context</code></td><td>Управлять памятью и состоянием разговора.</td></tr>
+      <tr><td class="left-col">Настройка</td><td><code>/mcp</code>, <code>/tools</code>, <code>/skills</code>, <code>/approval-mode</code>, <code>/model</code></td><td>Видеть и менять окружение агента.</td></tr>
+      <tr><td class="left-col">Безопасность</td><td><code>/restore</code>, <code>/clear</code>, <code>/quit</code></td><td>Откат, чистый старт, выход.</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>@ и !</div><div class="slide-num"></div>
+    <h2>Контекст<br>и оболочка рядом</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3><code>@</code> кладёт факты в разговор</h3>
+        <ul class="dash">
+          <li><code>@docs/api.md</code> добавляет файл.</li>
+          <li><code>@src/auth</code> добавляет директорию с учётом правил чтения.</li>
+          <li>Главный риск: слишком широкий контекст.</li>
+        </ul>
+      </div>
+      <div class="card dark">
+        <h3><code>!</code> запускает оболочку</h3>
+        <ul class="dash">
+          <li><code>!git status</code> показывает реальное состояние.</li>
+          <li>Одиночный <code>!</code> переводит в режим оболочки.</li>
+          <li>В подпроцессе выставляется <code>GIGACODE=1</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пользовательские команды</div><div class="slide-num"></div>
+    <h2>Markdown как<br><span class="accent">мини-сценарий</span></h2>
+    <div class="two-col">
+      <div>
+        <ul class="dash big-list">
+          <li>Личные: <code>~/.gigacode/commands/</code></li>
+          <li>Проектные: <code>.gigacode/commands/</code></li>
+          <li>Проектные команды имеют приоритет.</li>
+          <li>Подпапка задаёт префикс: <code>git/commit.md</code> → <code>/git:commit</code>.</li>
+        </ul>
+      </div>
+      <div class="code-block"><span class="c"># .gigacode/commands/git/commit.md</span>
+<span class="k">description:</span> создать сообщение коммита
+
+Проверь изменения в индексе:
+<span class="s">!{git diff --staged}</span>
+
+Напиши сообщение коммита для:
+<span class="v">{{args}}</span></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Когда использовать</div><div class="slide-num"></div>
+    <h2>Команды хороши,<br>когда нужна <span class="accent">точка входа</span></h2>
+    <div class="cols-3">
+      <div class="card"><h5>Повторяемость</h5><p>Частый сценарий, который не хочется каждый раз объяснять заново.</p></div>
+      <div class="card"><h5>Контекст</h5><p>Нужно добавить конкретные файлы без длинной преамбулы.</p></div>
+      <div class="card dark"><h5>Состояние</h5><p>Нужно быстро узнать положение дел командой оболочки.</p></div>
+      <div class="card"><h5>Репозиторий</h5><p>Сценарий лежит в git и обновляется вместе с кодом.</p></div>
+      <div class="card accent"><h5>Лёгкость</h5><p>Готовый запрос уже полезен, а полноценный навык пока избыточен.</p></div>
+      <div class="card"><h5>Чек-лист</h5><p>Обязательные шаги и параметры зашиты в самой команде — никто не пропустит.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Проблемы</div><div class="slide-num"></div>
+    <h2>Что ломается,<br>когда команд <span class="accent">становится много</span></h2>
+    <ul class="dash big-list" style="margin-top:36px; max-width:1120px;">
+      <li>Десятки своих команд превращаются в неявный интерфейс — без справки и навигации.</li>
+      <li><code>!{...}</code> внутри команды — это код, который кто-то должен проверять.</li>
+      <li>Длинная команда — это процесс. Без ревью он стареет молча.</li>
+      <li><code>@directory</code> чаще добавляет шум, чем контекст.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пример в терминале · команды</div><div class="slide-num"></div>
+    <h2>Команды в<br><span class="accent">терминале GigaCode</span></h2>
+    <div class="terminal" data-step="0">
+      <div class="terminal-head"><div class="term-brand"><span class="term-logo"></span> GigaCode</div><button class="run-demo">STEP</button></div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">></span> /help</div>
+        <div class="term-line"><span class="dim">  сеанс: /init /compress /resume /recap  ·  настройка: /mcp /tools /skills  ·  безопасность: /restore /clear</span><br><span class="anno">// slash-команды управляют самим GigaCode: сеанс, настройки, безопасность</span></div>
+        <div class="term-line"><span class="prompt">></span> @docs/code-standards.md</div>
+        <div class="term-line"><span class="ok">  ✓</span> docs/code-standards.md добавлен в контекст<br><span class="anno">// @ подгружает файл в контекст разговора</span></div>
+        <div class="term-line"><span class="prompt">></span> !git status</div>
+        <div class="term-line"><span class="dim">  ветка main · 3 файла в индексе</span><br><span class="anno">// ! запускает оболочку; вывод попадает в разговор</span></div>
+        <div class="term-line"><span class="prompt">></span> /git:commit "refactor parser"</div>
+        <div class="term-line"><span class="dim">  ↳ Коммит: "refactor: упростить разбор токена"  Подтвердить? [y/n]</span><br><span class="anno">// пользовательская команда прочитала изменения в индексе через !{git diff --staged} и передала их в модель</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Блок 2</div><div class="slide-num"></div>
+    <div class="content"><div class="num">— 02 —</div><h2>Tools</h2><div class="sub">Инструменты дают агенту руки: читать, искать, запускать код, менять файлы.</div></div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Инструменты · что это</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">инструменты?</span></h2>
+    <p class="lead">Инструмент — конкретное действие агента. Вы задаёте, что требует подтверждения, — через режим подтверждений.</p>
+    <div class="ig" style="margin-top:36px;">
+      <div class="ig-node dark" style="min-width:110px;">Агент<br>решает</div>
+      <div class="ig-arr">→</div>
+      <div class="ig-col">
+        <div class="ig-node" style="min-width:240px;">найти и прочитать</div>
+        <div class="ig-node red" style="min-width:240px;">изменить файлы</div>
+        <div class="ig-node yel" style="min-width:240px;">запустить оболочку</div>
+        <div class="ig-node" style="min-width:240px;">сходить в сеть</div>
+      </div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node green" style="min-width:150px;">Факт получен,<br>результат<br>готов</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Как работает вызов</div><div class="slide-num"></div>
+    <h2>Шаги вызова<br><span class="accent">инструмента</span></h2>
+    <div class="flow">
+      <div class="flow-step"><div class="step-n">01</div><h4>Выбор</h4><p>Модель читает описания инструментов и решает, какой подходит для следующего шага.</p></div>
+      <div class="flow-step"><div class="step-n">02</div><h4>Параметры</h4><p>Формирует структурированный вызов: имя инструмента и аргументы.</p></div>
+      <div class="flow-step"><div class="step-n">03</div><h4>Контроль</h4><p>Режим подтверждений и хуки решают: разрешить, спросить или заблокировать.</p></div>
+      <div class="flow-step"><div class="step-n">04</div><h4>Результат</h4><p>Вывод инструмента возвращается в разговор как новый факт.</p></div>
+    </div>
+    <p class="lead">Навыки учат агента как думать. Инструменты дают ему действия и факты.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Типы инструментов</div><div class="slide-num"></div>
+    <h2>Шесть семейств<br><span class="accent">инструментов</span></h2>
+    <div class="cols-3">
+      <div class="card"><h5>Поиск</h5><p><code>grep_search</code>, <code>glob</code>, <code>list_directory</code> — найти нужное место в коде.</p></div>
+      <div class="card dark"><h5>Чтение</h5><p><code>read_file</code>, <code>read_many_files</code> — забрать содержимое в контекст.</p></div>
+      <div class="card accent"><h5>Правка</h5><p><code>edit</code> для точечных изменений, <code>write_file</code> для создания или полной замены.</p></div>
+      <div class="card"><h5>Оболочка</h5><p><code>run_shell_command</code> — тесты, сборка, git, любые CLI-инструменты.</p></div>
+      <div class="card"><h5>Сеть</h5><p><code>web_fetch</code> — взять документацию, OpenAPI-схему, внешнюю спецификацию.</p></div>
+      <div class="card"><h5>Память</h5><p><code>save_memory</code>, <code>todo_write</code> — зафиксировать факты и план задачи.</p></div>
+    </div>
+    <p class="lead" style="margin-top:22px; font-size:24px; color:var(--muted);">Ещё бывают MCP-инструменты — это блок 5; делегирование субагенту — блок 6.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Управление</div><div class="slide-num"></div>
+    <h2>Режим подтверждений —<br>граница автономности</h2>
+    <table class="cmp">
+      <tr><th>Режим</th><th>Что разрешает</th><th>Риск</th></tr>
+      <tr><td class="left-col">plan</td><td>Анализ без исполнения.</td><td>Безопасно, но без действий.</td></tr>
+      <tr><td class="left-col">default</td><td>Подтверждение для правок и команд оболочки.</td><td>Хороший режим на каждый день.</td></tr>
+      <tr><td class="left-col">auto-edit</td><td>Автоподтверждение для инструментов правки.</td><td>Удобно в доверенной рабочей папке.</td></tr>
+      <tr><td class="left-col">yolo</td><td>Автоподтверждение всего.</td><td>Быстро, но широкая зона последствий.</td></tr>
+    </table>
+    <p class="lead" style="margin-top:24px;">Переключение: <code>/approval-mode plan</code> · <code>default</code> · <code>auto-edit</code> · <code>yolo</code>. Без аргумента команда показывает текущий режим.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Политика</div><div class="slide-num"></div>
+    <h2>Под каждый тип —<br><span class="accent">своя политика</span></h2>
+    <ul class="dash big-list" style="margin-top:38px;">
+      <li>Чтение и поиск — без подтверждений, минимальный риск.</li>
+      <li>Правки — подтверждение в <code>default</code>; <code>auto-edit</code> только в доверенной директории.</li>
+      <li>Оболочка — белый список команд плюс <code>PreToolUse</code> hook на опасные паттерны.</li>
+      <li>Сетевые запросы (<code>web_fetch</code>) — отдельная политика для приватных URL и внешних сервисов.</li>
+      <li>Деструктивные действия (<code>rm</code>, <code>git push --force</code>) — <code>PreToolUse</code> с требованием явной цели.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Проблемы</div><div class="slide-num"></div>
+    <h2>Инструменты:<br>польза и <span class="accent">издержки</span></h2>
+    <div class="two-col" style="margin-top:32px;">
+      <div>
+        <div class="col-title">Уносят контекст</div>
+        <div class="card" style="min-height:auto; margin-bottom:18px;"><h5>Большой вывод</h5><p>Объёмный результат забивает окно — модель теряет фокус задачи.</p></div>
+        <div class="card" style="min-height:auto;"><h5>Лишние вызовы</h5><p>Цепочка обращений без прогресса — токены тратятся, ответ откладывается.</p></div>
+      </div>
+      <div>
+        <div class="col-title">Расширяют доступ</div>
+        <div class="card dark" style="min-height:auto; margin-bottom:18px;"><h5>Оболочка</h5><p>Команды зависят от окружения и могут быть деструктивными.</p></div>
+        <div class="card accent" style="min-height:auto; margin-bottom:18px;"><h5>YOLO-режим</h5><p>Граница согласований исчезает целиком — любое действие проходит.</p></div>
+        <div class="card" style="min-height:auto;"><h5>Сетевые запросы</h5><p><code>web_fetch</code> уносит параметры и URL во внешний сервис — не для приватных систем.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пример в терминале · инструменты</div><div class="slide-num"></div>
+    <h2>Агент решает задачу:<br><span class="accent">шаг за шагом</span></h2>
+    <div class="terminal" data-step="0">
+      <div class="terminal-head"><div class="term-brand"><span class="term-logo"></span> GigaCode</div><button class="run-demo">STEP</button></div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">></span> падает тест, найди причину</div>
+        <div class="term-line"><span class="tool">● run_shell_command</span>("npm test")<br><span class="bad">  ✕ AuthParserTest · off-by-one при разбиении токена (src/auth/parser.ts:47)</span><br><span class="anno">// исследовать: получить реальный вывод тестов</span></div>
+        <div class="term-line"><span class="tool">● grep_search</span>("AuthParser", path="src/")<br><span class="anno">// исследовать: найти расположение до чтения</span></div>
+        <div class="term-line"><span class="tool">● read_file</span>("src/auth/parser.ts", lines="38-55")<br><span class="dim">  tokens.slice(0, idx)  ←  должно быть slice(0, idx+1)</span><br><span class="anno">// проверить: читать точечно</span></div>
+        <div class="term-line"><span class="warn">⚠ edit</span>("src/auth/parser.ts", "slice(0, idx)", "slice(0, idx+1)")<br><span class="dim">  Разрешить правку? [y/n]: </span><span class="ok">y</span><br><span class="anno">// точечная правка требует подтверждения в режиме default</span></div>
+        <div class="term-line"><span class="tool">● run_shell_command</span>("npm test")<br><span class="ok">  ✓ 24 теста пройдено, 0 упало</span><br><span class="anno">// проверить: убедиться, что исправление не сломало другое</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Блок 3</div><div class="slide-num"></div>
+    <div class="content"><div class="num">— 03 —</div><h2>Skills</h2><div class="sub">Навык — упакованная экспертиза. Вы один раз описываете практику, а агент применяет её сам.</div></div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Навыки · что это</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">навыки?</span></h2>
+    <p class="lead">Навык — файл с инструкциями для агента. Модель подключает его автоматически, когда тема разговора совпадает с описанием навыка.</p>
+    <div class="ig">
+      <div class="ig-node" style="min-width:360px; font-family:'Courier New',monospace; text-align:left; padding:22px 26px; font-size:21px; line-height:1.6;">
+        <div style="color:var(--accent);font-weight:700;letter-spacing:.06em;margin-bottom:10px;font-size:18px;">SKILL.md</div>
+        <div><span style="color:var(--muted)">name:</span> java-pr-review</div>
+        <div><span style="color:var(--muted)">description:</span> ревью запроса<br>&nbsp;&nbsp;на слияние в Java-проекте:<br>&nbsp;&nbsp;контракт, тесты, миграции</div>
+        <div><span style="color:var(--muted)">paths:</span> src/**/*.java</div>
+        <div style="margin-top:12px;color:var(--muted);font-size:18px;line-height:1.5;">1. Read diff first.<br>2. Cite file:line.<br>3. Flag missing tests.</div>
+      </div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node dark" style="min-width:200px;">Модель видит<br>задачу, читает<br>description</div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node red" style="min-width:180px;">Навык<br>подключён<br>автоматически</div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node green" style="min-width:160px;">Агент следует<br>стандартам<br>команды</div>
+    </div>
+    <p class="ig-note">Не нужно каждый раз объяснять правила — один раз описали в файле, навык сам включается.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Навыки · обзор</div><div class="slide-num"></div>
+    <h2>Навыки — упакованная<br>экспертиза через <span class="accent">SKILL.md</span></h2>
+    <div class="cols-3">
+      <div class="card"><h5>Инструкции</h5><p>Как думать, какие инварианты держать, какие шаги не пропускать.</p></div>
+      <div class="card"><h5>Скрипты</h5><p>Локальные вспомогательные скрипты, которые навык может рекомендовать запускать.</p></div>
+      <div class="card"><h5>Шаблоны</h5><p>Готовые формы отчётов, миграций, проверок и заметок к выпуску.</p></div>
+      <div class="card dark"><h5>Материалы</h5><p>Вспомогательные файлы с предметной экспертизой.</p></div>
+      <div class="card accent"><h5>Описание</h5><p>Главный триггер — модель решает использовать навык по его описанию.</p></div>
+      <div class="card"><h5>Область</h5><p>Узкий навык лучше широкого справочника обо всём.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Где лежат</div><div class="slide-num"></div>
+    <h2>Три уровня<br>подключения</h2>
+    <div class="cols-3">
+      <div class="card"><h3>Личные</h3><p><code>~/.gigacode/skills/</code><br>Персональные привычки и повторяемые задачи.</p></div>
+      <div class="card dark"><h3>Проект</h3><p><code>.gigacode/skills/</code><br>Командные стандарты, которые можно версионировать.</p></div>
+      <div class="card accent"><h3>Расширение</h3><p>Навыки, поставляемые расширениями и общими пакетами.</p></div>
+    </div>
+    <p class="lead">Подключение: автоматически — по <code>description</code>; вручную — через <code>/skills</code>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Формат</div><div class="slide-num"></div>
+    <h2>Что внутри<br><code>SKILL.md</code></h2>
+    <div class="two-col">
+      <div class="code-block"><span class="k">---</span>
+<span class="k">name:</span> java-pr-review
+<span class="k">description:</span> Проверка Java-запроса на слияние: код, тестовые риски, миграции.
+<span class="k">paths:</span>
+  - "src/**/*.java"
+<span class="k">---</span>
+
+1. Сначала прочитать изменения.
+2. В первую очередь искать ошибки и регрессии.
+3. Указывать файл и строку.
+4. Отмечать пробелы в тестах.</div>
+      <ul class="dash big-list">
+        <li><code>name</code> — стабильный идентификатор.</li>
+        <li><code>description</code> — формулировки, которыми пользователь описывает задачу.</li>
+        <li><code>paths</code> — помогает найти навык, но не ограничивает доступ.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Навык vs команда</div><div class="slide-num"></div>
+    <h2>Чем навык отличается<br>от <span class="accent">команды</span></h2>
+    <table class="cmp" style="margin-top:30px;">
+      <tr><th></th><th>Команда</th><th>Навык</th></tr>
+      <tr><td class="left-col">Кто запускает</td><td>Пользователь — вводит вручную.</td><td>Модель — сама, когда совпала тема.</td></tr>
+      <tr><td class="left-col">Что внутри</td><td>Готовый запрос с параметрами.</td><td>Инструкция: как думать и какие шаги держать.</td></tr>
+      <tr><td class="left-col">Когда сработает</td><td>В момент ввода.</td><td>Когда задача похожа на <code>description</code>.</td></tr>
+      <tr><td class="left-col">Примеры</td><td><code>/git:commit</code>, <code>/review</code>, <code>/release-notes</code></td><td><code>java-pr-review</code>, <code>db-migration-checklist</code>, <code>perf-investigation</code></td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Проблемы</div><div class="slide-num"></div>
+    <h2>Расплывчатый навык<br>срабатывает везде — и мешает</h2>
+    <ul class="dash big-list" style="margin-top:36px;">
+      <li>Широкий <code>description</code> включает навык слишком часто.</li>
+      <li>Несколько навыков могут конфликтовать в инструкциях.</li>
+      <li>Длинный навык съедает контекст вместо того, чтобы помогать.</li>
+      <li>Устаревший проектный навык ломает процесс всей команды.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пример в терминале · навыки</div><div class="slide-num"></div>
+    <h2>Навык в действии:<br>автоматический вызов</h2>
+    <div class="terminal" data-step="0">
+      <div class="terminal-head"><div class="term-brand"><span class="term-logo"></span> GigaCode</div><button class="run-demo">STEP</button></div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">></span> /skills</div>
+        <div class="term-line"><span class="dim">  java-pr-review  · Проверка Java-запроса на слияние: код, тестовые риски, миграции.</span><br><span class="dim">  release-notes   · Заметки к выпуску и журнал изменений.</span><br><span class="anno">// description — главный триггер; модель решает по нему, не по имени навыка</span></div>
+        <div class="term-line"><span class="prompt">></span> проверь Java-запрос на слияние</div>
+        <div class="term-line"><span class="anno">// модель: "Java-запрос на слияние" → java-pr-review загружен по description</span></div>
+        <div class="term-line"><span class="bad">  [HIGH]</span> <span class="dim">src/auth/TokenParser.java:87 — нет проверки на null перед token.split()</span><br><span class="warn">  [MED] </span> <span class="dim">src/auth/TokenParser.java:104 — краевые случаи split() не покрыты</span><br><span class="anno">// навык задал: серьёзность, ссылки file:line, пробелы в тестах — без напоминания каждый раз</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Блок 4</div><div class="slide-num"></div>
+    <div class="content"><div class="num">— 04 —</div><h2>Hooks</h2><div class="sub">Hooks, или хуки, делают поведение агента предсказуемым: автоматически срабатывают на события.</div></div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Hooks · что это</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">hooks?</span></h2>
+    <p class="lead">Hook — скрипт или HTTP-вызов, который запускается автоматически при событии: перед действием агента, после него или при старте сессии.</p>
+    <div class="ig">
+      <div class="ig-node yel" style="min-width:180px;">Событие<br><span style="font-size:18px;">PreToolUse,<br>SessionStart…</span></div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node dark" style="min-width:210px;">Hook<br>в фоне<br><span style="font-size:18px;color:rgba(255,255,255,0.6);">невидим для модели</span></div>
+      <div class="ig-arr">→</div>
+      <div style="display:flex;align-items:stretch;gap:0;">
+        <div style="width:3px;background:var(--ink);margin-right:14px;flex-shrink:0;"></div>
+        <div class="ig-col">
+          <div class="ig-node green" style="min-width:180px;">✓ разрешить</div>
+          <div class="ig-node red" style="min-width:180px;">⊘ заблокировать</div>
+          <div class="ig-node" style="min-width:180px;">◎ записать в лог</div>
+        </div>
+      </div>
+    </div>
+    <p class="ig-note">Hooks дают детерминированный контроль там, где решение нельзя оставлять на усмотрение модели.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Структура hook</div><div class="slide-num"></div>
+    <h2>Из чего состоит<br><span class="accent">hook</span></h2>
+    <div class="two-col">
+      <div class="code-block"><span class="c"># ~/.gigacode/settings.json  или  .gigacode/settings.json</span>
+<span class="k">"hooks"</span>: {
+  <span class="k">"PreToolUse"</span>: [
+    {
+      <span class="k">"matcher"</span>: <span class="s">"run_shell_command"</span>,
+      <span class="k">"hooks"</span>: [
+        {
+          <span class="k">"type"</span>: <span class="s">"command"</span>,
+          <span class="k">"command"</span>: <span class="s">"./scripts/safety.sh"</span>
+        }
+      ]
+    }
+  ]
+}</div>
+      <ul class="dash big-list">
+        <li><strong>event</strong> — что произошло: <code>PreToolUse</code>, <code>SessionStart</code> и т.д.</li>
+        <li><strong>matcher</strong> — regex по имени инструмента или субагента.</li>
+        <li><strong>type</strong> — <code>command</code> (скрипт), <code>http</code> (URL), <code>function</code> (внутренний).</li>
+        <li>Лежит в <code>settings.json</code>: личный, проектный или из расширения.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>События</div><div class="slide-num"></div>
+    <h2>Где можно<br><span class="accent">использовать</span></h2>
+    <table class="cmp" style="margin-top:30px;">
+      <tr><th>Группа</th><th>События</th><th>Типичный сценарий</th></tr>
+      <tr><td class="left-col">Инструменты</td><td><code>PreToolUse</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code></td><td>Проверка параметров, аудит, обработка ошибок.</td></tr>
+      <tr><td class="left-col">Ввод</td><td><code>UserPromptSubmit</code>, <code>PermissionRequest</code></td><td>Доб. контекста к запросу, политика выдачи прав.</td></tr>
+      <tr><td class="left-col">Сеанс</td><td><code>SessionStart</code>, <code>SessionEnd</code>, <code>Stop</code>, <code>Notification</code></td><td>Инициализация, очистка, уведомления.</td></tr>
+      <tr><td class="left-col">Память</td><td><code>PreCompact</code>, <code>PostCompact</code></td><td>Сохранить или дополнить контекст до сжатия.</td></tr>
+      <tr><td class="left-col">Делегирование</td><td><code>SubagentStart</code></td><td>Подготовка контекста для субагента.</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Исполнители</div><div class="slide-num"></div>
+    <h2>Два рабочих<br>типа: <span class="accent">command</span> и <span class="accent">http</span></h2>
+    <div class="two-col">
+      <div class="card">
+        <h3><code>command</code></h3>
+        <p style="font-size:22px; margin-bottom:14px;">Локальный скрипт. JSON приходит через <code>stdin</code>, ответ — через <code>stdout</code>.</p>
+        <div class="code-block" style="margin-top:8px; font-size:18px;"><span class="k">"type"</span>: <span class="s">"command"</span>,
+<span class="k">"command"</span>: <span class="s">"./scripts/safety.sh"</span>,
+<span class="k">"timeout"</span>: 5000</div>
+      </div>
+      <div class="card dark">
+        <h3><code>http</code></h3>
+        <p style="font-size:22px; margin-bottom:14px;">POST JSON на URL. Подходит для внешнего сервиса политики или аудита.</p>
+        <div class="code-block" style="margin-top:8px; font-size:18px;"><span class="k">"type"</span>: <span class="s">"http"</span>,
+<span class="k">"url"</span>: <span class="s">"https://audit/hook"</span>,
+<span class="k">"headers"</span>: { … }</div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:22px;">Есть ещё <code>function</code> — для встроенных механизмов; в пользовательских настройках почти не встречается.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Тонкая настройка</div><div class="slide-num"></div>
+    <h2>Как срабатывает<br>и что возвращает</h2>
+    <div class="cols-3">
+      <div class="card"><h5>matcher</h5><p>Regex по имени инструмента или субагента. Широкий regex — частая причина лишних блокировок.</p></div>
+      <div class="card"><h5>parallel · sequential</h5><p>По умолчанию параллельно. <code>sequential: true</code> — цепочка; следующий хук видит вывод предыдущего.</p></div>
+      <div class="card dark"><h5>async</h5><p><code>async: true</code> — не блокирует агента, результат вернётся следующим ходом. Для аудита и метрик.</p></div>
+      <div class="card accent"><h5>Exit codes</h5><p><code>0</code> — успех (читаем JSON из stdout). <code>2</code> — блокирующая ошибка (stderr идёт в агента). Другое — non-blocking.</p></div>
+      <div class="card"><h5><code>PreToolUse</code> ответ</h5><p>Обязательные поля: <code>permissionDecision</code> (<code>allow</code>/<code>deny</code>/<code>ask</code>) и <code>permissionDecisionReason</code>.</p></div>
+      <div class="card"><h5>Аварийный выключатель</h5><p><code>disableAllHooks: true</code> — снять весь слой, если что-то сломалось.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Проблемы → решения</div><div class="slide-num"></div>
+    <h2>Где hooks ломаются<br>и что делать</h2>
+    <table class="cmp" style="margin-top:30px;">
+      <tr><th>Проблема</th><th>Решение</th></tr>
+      <tr><td>Медленный hook тормозит каждый вызов инструмента.</td><td><code>async: true</code> для аудита; <code>timeout</code> для command; sequential — только для критичных проверок.</td></tr>
+      <tr><td>Пользователь не понимает, почему действие заблокировано.</td><td>Заполнять <code>permissionDecisionReason</code> читаемой фразой — она показывается в терминале.</td></tr>
+      <tr><td>HTTP hook может стучаться куда угодно.</td><td><code>allowedUrls</code> и <code>allowedEnvVars</code>; SSRF-защита по DNS встроена.</td></tr>
+      <tr><td>Hook сломан — агент стоит.</td><td><code>disableAllHooks: true</code> в личном <code>settings.json</code> — аварийный выключатель.</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пример в терминале · hooks</div><div class="slide-num"></div>
+    <h2>Hook как<br><span class="accent">автоматический отказ</span></h2>
+    <div class="terminal" data-step="0">
+      <div class="terminal-head"><div class="term-brand"><span class="term-logo"></span> GigaCode</div><button class="run-demo">STEP</button></div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">></span> почисти временные файлы<br><span class="anno">// PreToolUse hook для run_shell_command запускает security-check.sh</span></div>
+        <div class="term-line"><span class="bad">⊘ run_shell_command</span>("rm -rf tmp") — заблокировано<br><span class="dim">  permissionDecision: deny · permissionDecisionReason: нужна явно указанная цель</span><br><span class="anno">// пользователь видит причину отказа; событие и matcher остаются частью настройки hook</span></div>
+        <div class="term-line"><span class="agent">  Предлагаю безопасный вариант: rm tmp/*.log</span></div>
+        <div class="term-line"><span class="tool">● run_shell_command</span>("rm tmp/*.log")<br><span class="ok">  ✓ Удалено 14 файлов</span><br><span class="anno">// PostToolUse hook обновил audit.log без лишнего вывода в терминал</span></div>
+        <div class="term-line"><span class="anno">// disableAllHooks: true — аварийный выключатель, если hook ломает процесс</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Блок 5</div><div class="slide-num"></div>
+    <div class="content"><div class="num">— 05 —</div><h2>MCP</h2><div class="sub">MCP открывает агенту внешний мир: инструменты, базы данных и API — через единый протокол.</div></div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>MCP · что это</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">MCP?</span></h2>
+    <p class="lead">MCP (Model Context Protocol) — стандарт для подключения внешних инструментов и данных. Агент работает с ними так же, как со встроенными.</p>
+    <div class="ig" style="margin-top:36px; align-items:center;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="ig-node" style="min-width:150px; font-size:20px;">Jira / Linear</div>
+        <div class="ig-node" style="min-width:150px; font-size:20px;">База данных</div>
+        <div class="ig-node" style="min-width:150px; font-size:20px;">Confluence / Docs</div>
+        <div class="ig-node" style="min-width:150px; font-size:20px;">Внутренний API</div>
+      </div>
+      <div class="ig-arr">↔</div>
+      <div class="ig-node dark" style="min-width:160px; font-size:24px;">MCP<br>сервер<br><span style="font-size:17px;opacity:.6;">адаптер</span></div>
+      <div class="ig-arr">↔</div>
+      <div class="ig-node red" style="min-width:180px;">Агент<br>видит инструменты<br>и данные</div>
+    </div>
+    <p class="ig-note">Вы контролируете, какие инструменты открыты модели. Доступ на запись закрывается отдельно.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>MCP-сервер</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">MCP-сервер</span></h2>
+    <p class="lead">Сервер — не «отдельная машина», а процесс, который говорит на MCP-протоколе. Один сервер = один пакет инструментов (Jira, БД, документация).</p>
+    <div class="two-col" style="margin-top:30px;">
+      <div class="card">
+        <h3>Локальный (stdio)</h3>
+        <p style="font-size:23px;">Дочерний процесс запускается рядом с агентом. Никакой сети. Подходит для CLI, доступа к локальной БД, кастомных серверов.</p>
+      </div>
+      <div class="card dark">
+        <h3>Удалённый (http)</h3>
+        <p style="font-size:23px;">HTTP-сервис, к которому подключается агент. Подходит для корпоративных Jira, GitHub, Confluence, внутренних API.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:24px;">Свой сервер пишем, только если нет готового. Для популярных систем серверы уже есть — подключаем готовые.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Что подключать</div><div class="slide-num"></div>
+    <h2>MCP-инструменты<br>с <span class="accent">фильтрами</span></h2>
+    <div class="cols-3">
+      <div class="card"><h5>Репозитории</h5><p>Файлы, запросы на слияние, коммиты, проверка.</p></div>
+      <div class="card"><h5>Базы данных</h5><p>Просмотр схемы, запросы только на чтение, отчёты.</p></div>
+      <div class="card dark"><h5>Сервисы</h5><p>Внутренние API, обёрнутые в инструменты.</p></div>
+      <div class="card"><h5>Рабочие задачи</h5><p>Повторяемые действия как инструменты и шаблоны.</p></div>
+      <div class="card accent"><h5>Документация</h5><p>Confluence, проектные документы, системы совместной работы.</p></div>
+      <div class="card"><h5>Дизайн</h5><p>Артефакты и исходные данные через специализированные серверы.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Транспорт</div><div class="slide-num"></div>
+    <h2>Транспорт задаёт,<br>как живёт сервер</h2>
+    <table class="cmp">
+      <tr><th>Транспорт</th><th>Поля</th><th>Комментарий</th></tr>
+      <tr><td class="left-col">stdio</td><td><code>command</code>, <code>args</code>, <code>cwd</code>, <code>env</code></td><td>Локальный процесс.</td></tr>
+      <tr><td class="left-col">http</td><td><code>httpUrl</code>, необязательные заголовки</td><td>Рекомендуемый удалённый вариант.</td></tr>
+      <tr><td class="left-col">sse</td><td><code>url</code></td><td>Устаревший вариант, если нет HTTP.</td></tr>
+    </table>
+    <div class="code-block">gigacode mcp add --transport http my-server http://localhost:3000/mcp</div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Фильтры и доверие</div><div class="slide-num"></div>
+    <h2>Что открыть,<br>а что — <span class="accent">закрыть</span></h2>
+    <table class="cmp" style="margin-top:30px;">
+      <tr><th>Поле</th><th>Что делает</th><th>Когда применять</th></tr>
+      <tr><td class="left-col">includeTools</td><td>Белый список инструментов сервера.</td><td>По умолчанию — открыть только нужное.</td></tr>
+      <tr><td class="left-col">excludeTools</td><td>Чёрный список. <strong>Приоритетнее</strong> <code>includeTools</code>.</td><td>Запретить инструменты с записью.</td></tr>
+      <tr><td class="left-col">mcp.allowed</td><td>Глобальный список разрешённых серверов.</td><td>Контроль на уровне организации.</td></tr>
+      <tr><td class="left-col">trust</td><td>Снимает подтверждения для всех инструментов сервера.</td><td>Очень редко — только для полностью своего сервера.</td></tr>
+    </table>
+    <p class="lead" style="margin-top:22px; font-size:24px;">OAuth-токены — в <code>~/.gigacode/mcp-oauth-tokens.json</code>. Переменные окружения подставляются через <code>$VAR</code> и <code>${VAR}</code>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Проблемы</div><div class="slide-num"></div>
+    <h2>Что MCP забирает<br>за свою <span class="accent">пользу</span></h2>
+    <ul class="dash big-list" style="margin-top:36px;">
+      <li>Каждый инструмент сервера попадает в каждый запрос модели — растёт длина контекста и падает точность выбора.</li>
+      <li>Внешний сервер видит параметры запросов и доступ — для приватных систем это требует отдельной оценки.</li>
+      <li>OAuth-токены протухают молча: инструмент исчезает, агент действует так, будто его никогда не было.</li>
+      <li><code>trust: true</code> стирает границу подтверждений — все вызовы инструментов сервера идут без вопросов.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пример в терминале · MCP</div><div class="slide-num"></div>
+    <h2>Инструменты MCP<br>с фильтрами</h2>
+    <div class="terminal" data-step="0">
+      <div class="terminal-head"><div class="term-brand"><span class="term-logo"></span> GigaCode</div><button class="run-demo">STEP</button></div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">></span> /mcp</div>
+        <div class="term-line"><span class="ok">  ● jira   подключён</span><span class="dim">  · includeTools: get_issue, search_issues</span><br><span class="ok">  ● docs   подключён</span><span class="dim">  · includeTools: search, get_page</span><br><span class="anno">// includeTools: инструменты записи скрыты — модель их не видит и не может вызвать</span></div>
+        <div class="term-line"><span class="prompt">></span> нужен контекст по задаче PROJ-1842</div>
+        <div class="term-line"><span class="tool">● mcp__jira__get_issue</span>({issue_id: "PROJ-1842"})<br><span class="dim">  "Обновление токена авторизации падает на мобильных"  ·  метки: auth, P1</span><br><span class="anno">// формат имени MCP-инструмента: mcp__&lt;server&gt;__&lt;tool&gt;</span></div>
+        <div class="term-line"><span class="tool">● mcp__docs__search</span>({query: "поток обновления токена"})<br><span class="dim">  docs/auth/refresh-tokens.md — последовательность обновления OAuth</span><br><span class="anno">// trust:true убрал бы подтверждения для всех инструментов сервера, включая запись</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Блок 6</div><div class="slide-num"></div>
+    <div class="content"><div class="num">— 06 —</div><h2>Subagents</h2><div class="sub">Субагенты берут часть задачи на себя — каждый со своей областью, контекстом и инструментами.</div></div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Субагенты · что это</div><div class="slide-num"></div>
+    <h2>Что такое<br><span class="accent">субагенты?</span></h2>
+    <p class="lead">Субагент — отдельный экземпляр агента, который берёт на себя часть задачи и возвращает результат главному агенту.</p>
+    <div class="ig" style="align-items:stretch;">
+      <div class="ig-node dark" style="min-width:140px; display:flex; align-items:center; justify-content:center;">Главный<br>агент</div>
+      <div class="ig-arr">→</div>
+      <div class="ig-col" style="gap:16px;">
+        <div class="ig-node red" style="min-width:310px;">Именованный субагент<br><span style="font-size:19px;opacity:.85;">блокирует родителя · начинает с чистого листа</span></div>
+        <div class="ig-node yel" style="min-width:310px;">Fork-субагент<br><span style="font-size:19px;">работает в фоне · наследует контекст</span></div>
+      </div>
+      <div class="ig-arr">→</div>
+      <div class="ig-node green" style="min-width:140px; display:flex; align-items:center; justify-content:center;">Результат<br>или<br>статус</div>
+    </div>
+    <p class="ig-note">Именованный субагент возвращает результат в главный разговор; fork показывает прогресс, но не подмешивает результат автоматически.</p>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Субагенты · обзор</div><div class="slide-num"></div>
+    <h2>Специализированные<br>ИИ-помощники</h2>
+    <div class="cols-3">
+      <div class="card"><h5>Задание</h5><p>У каждого может быть свой системный промпт и стиль работы.</p></div>
+      <div class="card dark"><h5>Инструменты</h5><p>Можно задать список разрешённых или запрещённых инструментов.</p></div>
+      <div class="card accent"><h5>Контекст</h5><p>Отдельный контекст разговора, результат возвращается главному агенту.</p></div>
+      <div class="card"><h5>Именованный</h5><p>Блокирует родителя до завершения. Начинает с чистого контекста — без истории родителя.</p></div>
+      <div class="card dark"><h5>Fork-субагент</h5><p>Работает в фоне. Наследует полный контекст родителя. Родитель продолжает работу.</p></div>
+      <div class="card"><h5>Конфигурация</h5><p>Хранится в <code>.gigacode/agents/</code> (проект) или <code>~/.gigacode/agents/</code> (личное).</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Анатомия субагента</div><div class="slide-num"></div>
+    <h2>Из чего состоит<br><span class="accent">именованный агент</span></h2>
+    <div class="two-col">
+      <div class="code-block" style="font-size:20px;"><span class="k">---</span>
+<span class="k">name:</span> code-reviewer
+<span class="k">description:</span> второй взгляд на
+  изменения, ищет регрессии
+  и нарушения контракта
+<span class="k">model:</span> inherit
+<span class="k">approvalMode:</span> plan
+<span class="k">tools:</span>
+  - read_file
+  - grep_search
+  - glob
+<span class="k">disallowedTools:</span>
+  - edit
+  - write_file
+  - run_shell_command
+<span class="k">---</span>
+
+<span class="c"># Системный промпт</span>
+Ты делаешь ревью изменений.
+Всегда ссылайся на file:line.
+Сначала ищи регрессии и
+нарушения контракта.</div>
+      <ul class="dash big-list">
+        <li><code>name</code> — стабильный идентификатор для <code>Task(subagent_type=…)</code>.</li>
+        <li><code>description</code> — формулировки, по которым модель выбирает агента.</li>
+        <li><code>model: inherit</code> — берёт модель родителя; можно задать конкретную.</li>
+        <li><code>approvalMode</code> — свой режим подтверждений, обычно <code>plan</code> для read-only.</li>
+        <li><code>tools</code> — белый список. Без него субагент наследует <strong>все</strong> инструменты, включая MCP.</li>
+        <li>Тело — системный промпт: как думать, что возвращать, какие правила держать.</li>
+        <li>Лежит в <code>.gigacode/agents/</code> (проект) или <code>~/.gigacode/agents/</code> (личное). Управление — <code>/agents</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Когда использовать</div><div class="slide-num"></div>
+    <h2>Субагент получает<br>узкую область задачи</h2>
+    <div class="cols-3">
+      <div class="card"><h5>Тестирование</h5><p>Найти тестовые риски и сделать точечные проверки.</p></div>
+      <div class="card"><h5>Документация</h5><p>Собрать черновик по известному шаблону.</p></div>
+      <div class="card dark"><h5>Безопасность</h5><p>Проверка чувствительных мест только на чтение.</p></div>
+      <div class="card"><h5>Рефакторинг</h5><p>Исследовать последствия изменений без автоматических правок.</p></div>
+      <div class="card accent"><h5>Ссылки на факты</h5><p>Требовать файл/строку, команды и проверяемые данные.</p></div>
+      <div class="card"><h5>Координация</h5><p>Не давать нескольким агентам менять одни файлы.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Проблемы → решения</div><div class="slide-num"></div>
+    <h2>Где субагенты ломаются<br>и что делать</h2>
+    <table class="cmp" style="margin-top:30px;">
+      <tr><th>Проблема</th><th>Решение</th></tr>
+      <tr><td>Субагент стартует с чистого листа — теряется контекст родителя.</td><td>Передавать файлы, диффы и ссылки прямо в промпт <code>Task(prompt=…)</code>.</td></tr>
+      <tr><td>По умолчанию наследует все инструменты, включая MCP с записью.</td><td>Указывать <code>tools:</code> явно — белый список; для анализа добавлять <code>approvalMode: plan</code>.</td></tr>
+      <tr><td>Возвращает уверенное мнение без проверяемых ссылок.</td><td>В промпте требовать <code>file:line</code>, команды и цитаты; в системном промпте — то же правило.</td></tr>
+      <tr><td>Несколько субагентов дублируют работу или спорят выводами.</td><td>Разнести по областям (тесты / контракт / документация); не запускать на одних и тех же файлах.</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Пример в терминале · субагенты</div><div class="slide-num"></div>
+    <h2>Два специалиста —<br><span class="accent">общий отчёт</span></h2>
+    <div class="terminal" data-step="0">
+      <div class="terminal-head"><div class="term-brand"><span class="term-logo"></span> GigaCode</div><button class="run-demo">STEP</button></div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">></span> оцени влияние изменения AuthParser API</div>
+        <div class="term-line"><span class="tool">● Task</span>(subagent_type="code-reviewer", prompt="проверь публичный контракт AuthParser, выводы с file:line")<br><span class="anno">// первый именованный субагент — read-only инструменты, plan-режим</span></div>
+        <div class="term-line"><span class="dim">  [code-reviewer] 3 нарушения контракта:</span><br><span class="dim">    · src/auth/parser.ts:47 — сигнатура изменена без deprecation</span><br><span class="dim">    · src/auth/index.ts:12 — старый экспорт удалён</span><br><span class="dim">    · src/types/auth.d.ts:8 — тип несовместим с предыдущим релизом</span></div>
+        <div class="term-line"><span class="tool">● Task</span>(subagent_type="test-impact", prompt="найди тесты, которые сломаются от этих правок")<br><span class="anno">// второй именованный субагент — своя задача, чистый контекст, своя политика</span></div>
+        <div class="term-line"><span class="dim">  [test-impact] 7 тестов под риском в src/auth/__tests__/</span><br><span class="dim">  AuthParser.spec.ts, IntegrationFlow.spec.ts, RefreshToken.spec.ts …</span></div>
+        <div class="term-line"><span class="agent">  Главный агент собрал отчёт: 3 нарушения контракта + 7 тестов под удар. Рекомендация: добавить deprecation-обёртку.</span><br><span class="anno">// результаты обоих субагентов возвращаются в главный разговор и попадают в общий вывод</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide section-slide">
+    <div class="slide-kicker"><span class="dot"></span>Финал</div><div class="slide-num"></div>
+    <div class="content"><div class="num">— 07 —</div><h2>Что запомнить</h2><div class="sub">Шесть инструментов — шесть точек контроля. Вместе они дают управляемую рабочую среду.</div></div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Итог</div><div class="slide-num"></div>
+    <h2>Шесть инструментов<br>управления</h2>
+    <table class="cmp">
+      <tr><th>Слой</th><th>Коротко</th></tr>
+      <tr><td class="left-col">Commands</td><td><code>/</code>, <code>@</code>, <code>!</code> и переиспользуемые сценарии запроса.</td></tr>
+      <tr><td class="left-col">Tools</td><td>Реальные действия агента под разрешениями и режимом подтверждений.</td></tr>
+      <tr><td class="left-col">Skills</td><td>Возможности, которые модель подключает через <code>SKILL.md</code>.</td></tr>
+      <tr><td class="left-col">Hooks</td><td>Автоматические ограничения и реакции на события.</td></tr>
+      <tr><td class="left-col">MCP</td><td>Внешний слой инструментов и данных через серверы.</td></tr>
+      <tr><td class="left-col">Subagents</td><td>Именованные специалисты и фоновые fork-субагенты.</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <div class="slide-kicker"><span class="dot"></span>Контрольный список</div><div class="slide-num"></div>
+    <h2>Мини-список<br>перед задачей</h2>
+    <ul class="dash big-list" style="margin-top:36px;">
+      <li>Какая цель и какой контекст нужен?</li>
+      <li>Нужна ли команда или достаточно обычного запроса?</li>
+      <li>Какие инструменты можно разрешить, а какие должны спрашивать подтверждение?</li>
+      <li>Есть ли подходящий навык или MCP-сервер?</li>
+      <li>Нужен ли именованный субагент или fork-субагент?</li>
+      <li>Чем будем проверять результат?</li>
+    </ul>
+  </section>
+
+  <section class="slide quote-slide">
+    <div class="slide-kicker"><span class="dot" style="background:#fff;"></span>Часть 3</div><div class="slide-num"></div>
+    <div class="content">
+      <h2>Следующий шаг — собрать эти инструменты в единый рабочий процесс.</h2>
+    </div>
+  </section>
+
+</div>
+<div class="top-hud">← → пробел · F экран · S заметки</div>
+
+<script>
+  let current = 0;
+  const slides = () => Array.from(document.querySelectorAll(".slide"));
+
+  function updateNumbers() {
+    const all = slides();
+    all.forEach((slide, index) => {
+      const number = slide.querySelector(".slide-num");
+      if (number) number.textContent = String(index + 1).padStart(2, "0") + " / " + String(all.length).padStart(2, "0");
+    });
+  }
+
+  function show(index) {
+    const all = slides();
+    current = Math.max(0, Math.min(index, all.length - 1));
+    all.forEach((slide, i) => slide.classList.toggle("active", i === current));
+    const progress = document.getElementById("progress");
+    progress.style.width = ((current + 1) / all.length * 100) + "%";
+  }
+
+  function stepTerminal(terminal) {
+    const lines = terminal.querySelectorAll(".term-line").length;
+    const next = Math.min(Number(terminal.dataset.step || "0") + 1, lines - 1);
+    terminal.dataset.step = String(next);
+    const button = terminal.querySelector(".run-demo");
+  if (button && next >= lines - 1) button.textContent = "DONE";
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".run-demo");
+    if (button) {
+      stepTerminal(button.closest(".terminal"));
+      event.stopPropagation();
+      return;
+    }
+    if (event.target.closest(".terminal")) return;
+    if (event.clientX > window.innerWidth * 0.72) show(current + 1);
+    if (event.clientX < window.innerWidth * 0.28) show(current - 1);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") show(current + 1);
+    if (event.key === "ArrowLeft" || event.key === "PageUp") show(current - 1);
+    if (event.key.toLowerCase() === "f") document.documentElement.requestFullscreen?.();
+    if (event.key.toLowerCase() === "s") document.body.classList.toggle("show-notes");
+    if (event.key === "Enter") {
+      const activeTerminal = slides()[current].querySelector(".terminal");
+      if (activeTerminal) stepTerminal(activeTerminal);
+    }
+  });
+
+  window.addEventListener("load", () => {
+    updateNumbers();
+    show(0);
+  });
+</script>
+</body>
+</html>
