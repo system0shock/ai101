@@ -11,8 +11,10 @@
 Для PreToolUse ответ должен вернуть решение в `hookSpecificOutput`:
 
 - `hookEventName`: `PreToolUse`;
-- `permissionDecision`: `allow`, `deny` или `ask`;
-- `permissionDecisionReason`: понятное объяснение решения.
+- `permissionDecision`: `allow`, `deny` или `ask`, обязательное поле;
+- `permissionDecisionReason`: понятное объяснение решения, обязательное поле.
+
+`hookSpecificOutput` также обязателен для официального интерфейса PreToolUse. Top-level `decision` и `reason` могут поддерживаться внутренними классами, но для этого задания не используются.
 
 Hook читает путь из `tool_input.file_path` или `tool_input.path`. Для старых payload оставлен fallback на верхнеуровневые `file_path` и `path`.
 

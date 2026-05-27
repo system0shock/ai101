@@ -24,6 +24,27 @@ function Assert-MarkdownContains {
     }
 }
 
+function Assert-PreToolUseOutput {
+    param(
+        [object]$Output,
+        [string]$ExpectedDecision
+    )
+
+    $SpecificOutput = $Output.hookSpecificOutput
+    if ($null -eq $SpecificOutput) {
+        throw "Hook output is missing hookSpecificOutput"
+    }
+    if ($SpecificOutput.hookEventName -ne "PreToolUse") {
+        throw "Hook output has invalid hookSpecificOutput.hookEventName"
+    }
+    if ($SpecificOutput.permissionDecision -ne $ExpectedDecision) {
+        throw ("Hook output has invalid hookSpecificOutput.permissionDecision: {0}" -f $SpecificOutput.permissionDecision)
+    }
+    if ([string]::IsNullOrWhiteSpace($SpecificOutput.permissionDecisionReason)) {
+        throw "Hook output is missing hookSpecificOutput.permissionDecisionReason"
+    }
+}
+
 Write-Host "Checking upstream path leakage"
 $Leak = Get-ChildItem -Path $Root -Recurse -Filter "*.md" |
     Select-String -Pattern "\.qwen/|QWEN\.md" -ErrorAction SilentlyContinue
@@ -81,8 +102,6 @@ Assert-MarkdownContains "shared/mcp/README.md" "600000" "MCP README does not exp
 Write-Host "Checking hook behavior"
 $ProtectedPayload = '{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"file_path":"developer-track/docs/code-standards.md"}}'
 $HookOutput = $ProtectedPayload | python (Join-Path $Root ".gigacode/hooks/protect_sources.py") | ConvertFrom-Json
-if ($HookOutput.hookSpecificOutput.permissionDecision -ne "deny") {
-    throw "Protected WriteFile payload was not denied"
-}
+Assert-PreToolUseOutput $HookOutput "deny"
 
 Write-Host "Verification complete"

@@ -68,9 +68,21 @@ assert_contains "shared/mcp/README.md" "600000" "MCP README не объясня�
 
 echo "Проверка поведения hook"
 protected_payload='{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"file_path":"developer-track/docs/code-standards.md"}}'
-if ! printf '%s' "$protected_payload" | python "$ROOT/.gigacode/hooks/protect_sources.py" | grep -q '"permissionDecision": "deny"'; then
-  echo "Protected WriteFile payload не получил deny" >&2
-  exit 1
-fi
+hook_output="$(printf '%s' "$protected_payload" | python "$ROOT/.gigacode/hooks/protect_sources.py")"
+python - "$hook_output" <<'PY'
+import json
+import sys
+
+output = json.loads(sys.argv[1])
+specific = output.get("hookSpecificOutput")
+if not isinstance(specific, dict):
+    raise SystemExit("Hook output is missing hookSpecificOutput")
+if specific.get("hookEventName") != "PreToolUse":
+    raise SystemExit("Hook output has invalid hookSpecificOutput.hookEventName")
+if specific.get("permissionDecision") != "deny":
+    raise SystemExit("Hook output has invalid hookSpecificOutput.permissionDecision")
+if not specific.get("permissionDecisionReason"):
+    raise SystemExit("Hook output is missing hookSpecificOutput.permissionDecisionReason")
+PY
 
 echo "Проверка завершена"
