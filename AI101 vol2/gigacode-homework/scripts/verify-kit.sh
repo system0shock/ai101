@@ -32,6 +32,7 @@ for path in \
   "README.md" \
   "README-quickstart.md" \
   "GIGACODE.md" \
+  ".gigacode/settings.json" \
   ".gigacode/settings.example.json" \
   ".gigacode/hooks/README.md" \
   ".gigacode/hooks/protect_sources.py" \
@@ -59,9 +60,17 @@ echo "Проверка hook и MCP справок"
 assert_contains ".gigacode/hooks/README.md" "hookSpecificOutput" "Hook README не объясняет hookSpecificOutput"
 assert_contains ".gigacode/hooks/README.md" "permissionDecision" "Hook README не объясняет permissionDecision"
 assert_contains ".gigacode/hooks/README.md" "permissionDecisionReason" "Hook README не объясняет permissionDecisionReason"
+assert_contains ".gigacode/hooks/README.md" "WriteFile" "Hook README не объясняет matcher WriteFile"
 assert_contains "shared/mcp/README.md" "includeTools" "MCP README не объясняет includeTools"
 assert_contains "shared/mcp/README.md" "excludeTools" "MCP README не объясняет excludeTools"
 assert_contains "shared/mcp/README.md" "/mcp auth" "MCP README не объясняет /mcp auth"
 assert_contains "shared/mcp/README.md" "600000" "MCP README не объясняет timeout"
+
+echo "Проверка поведения hook"
+protected_payload='{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"file_path":"developer-track/docs/code-standards.md"}}'
+if ! printf '%s' "$protected_payload" | python "$ROOT/.gigacode/hooks/protect_sources.py" | grep -q '"permissionDecision": "deny"'; then
+  echo "Protected WriteFile payload не получил deny" >&2
+  exit 1
+fi
 
 echo "Проверка завершена"

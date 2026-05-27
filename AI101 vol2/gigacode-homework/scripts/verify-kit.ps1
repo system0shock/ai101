@@ -37,6 +37,7 @@ $Required = @(
     "README.md",
     "README-quickstart.md",
     "GIGACODE.md",
+    ".gigacode/settings.json",
     ".gigacode/settings.example.json",
     ".gigacode/hooks/README.md",
     ".gigacode/hooks/protect_sources.py",
@@ -57,6 +58,7 @@ foreach ($Path in $Required) {
 }
 
 Write-Host "Checking JSON settings"
+Get-Content (Join-Path $Root ".gigacode/settings.json") -Raw | ConvertFrom-Json | Out-Null
 Get-Content (Join-Path $Root ".gigacode/settings.example.json") -Raw | ConvertFrom-Json | Out-Null
 
 Write-Host "Checking analyst expected report"
@@ -70,9 +72,17 @@ Write-Host "Checking hook and MCP references"
 Assert-MarkdownContains ".gigacode/hooks/README.md" "hookSpecificOutput" "Hook README does not explain hookSpecificOutput"
 Assert-MarkdownContains ".gigacode/hooks/README.md" "permissionDecision" "Hook README does not explain permissionDecision"
 Assert-MarkdownContains ".gigacode/hooks/README.md" "permissionDecisionReason" "Hook README does not explain permissionDecisionReason"
+Assert-MarkdownContains ".gigacode/hooks/README.md" "WriteFile" "Hook README does not explain WriteFile matcher"
 Assert-MarkdownContains "shared/mcp/README.md" "includeTools" "MCP README does not explain includeTools"
 Assert-MarkdownContains "shared/mcp/README.md" "excludeTools" "MCP README does not explain excludeTools"
 Assert-MarkdownContains "shared/mcp/README.md" "/mcp auth" "MCP README does not explain /mcp auth"
 Assert-MarkdownContains "shared/mcp/README.md" "600000" "MCP README does not explain timeout"
+
+Write-Host "Checking hook behavior"
+$ProtectedPayload = '{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"file_path":"developer-track/docs/code-standards.md"}}'
+$HookOutput = $ProtectedPayload | python (Join-Path $Root ".gigacode/hooks/protect_sources.py") | ConvertFrom-Json
+if ($HookOutput.hookSpecificOutput.permissionDecision -ne "deny") {
+    throw "Protected WriteFile payload was not denied"
+}
 
 Write-Host "Verification complete"

@@ -7,7 +7,7 @@
 ## Шаги
 
 1. Прочитайте `.gigacode/hooks/README.md`.
-2. Сравните `.gigacode/settings.example.json` с текущими настройками GigaCode.
+2. Убедитесь, что в комплекте есть активный файл `.gigacode/settings.json`.
 3. Попросите агента изменить `developer-track/docs/code-standards.md`.
 
 ## Ожидаемый результат

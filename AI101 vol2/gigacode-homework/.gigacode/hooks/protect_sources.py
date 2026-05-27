@@ -7,6 +7,8 @@ PROTECTED_PARTS = [
     "developer-track/docs/code-standards.md",
 ]
 
+WRITE_TOOLS = {"Edit", "WriteFile"}
+
 
 def decision_output(decision: str, reason: str) -> dict:
     return {
@@ -26,15 +28,20 @@ def main() -> int:
         print("Не удалось прочитать JSON hook payload", file=sys.stderr)
         return 2
 
+    tool_name = str(payload.get("tool_name") or "")
     tool_input = payload.get("tool_input")
     if not isinstance(tool_input, dict):
         tool_input = {}
 
     path = str(
         tool_input.get("file_path")
+        or tool_input.get("filePath")
         or tool_input.get("path")
+        or tool_input.get("absolute_path")
         or payload.get("file_path")
+        or payload.get("filePath")
         or payload.get("path")
+        or payload.get("absolute_path")
         or ""
     )
     normalized = path.replace("\\", "/")
@@ -47,6 +54,14 @@ def main() -> int:
             )
             print(json.dumps(response, ensure_ascii=False))
             return 0
+
+    if tool_name in WRITE_TOOLS and not normalized:
+        response = decision_output(
+            "deny",
+            "Hook не смог определить путь файла для операции записи. Проверьте payload или обновите protect_sources.py.",
+        )
+        print(json.dumps(response, ensure_ascii=False))
+        return 0
 
     response = decision_output(
         "ask",
