@@ -25,6 +25,10 @@ def decision_output(decision: str, reason: str) -> dict:
     }
 
 
+def normalized_tool_input_text(tool_input: dict) -> str:
+    return json.dumps(tool_input, ensure_ascii=False).replace("\\", "/")
+
+
 def main() -> int:
     raw = sys.stdin.read()
     try:
@@ -50,10 +54,11 @@ def main() -> int:
         or ""
     )
     normalized = path.replace("\\", "/")
+    normalized_tool_input = normalized_tool_input_text(tool_input)
 
     # Защищённые файлы — всегда deny
     for protected in PROTECTED_PARTS:
-        if protected in normalized:
+        if protected in normalized or protected in normalized_tool_input:
             response = decision_output(
                 "deny",
                 f"File '{protected}' is protected. Put your notes in expected/ or propose a patch in the chat.",

@@ -16,7 +16,9 @@
 
 `hookSpecificOutput` также обязателен для официального интерфейса PreToolUse. Top-level `decision` и `reason` могут поддерживаться внутренними классами, но для этого задания не используются.
 
-Hook читает путь из `tool_input.file_path` или `tool_input.path`. Для старых payload оставлен fallback на верхнеуровневые `file_path` и `path`.
+Hook сначала читает путь из `tool_input.file_path`, `tool_input.filePath`, `tool_input.path` или `tool_input.absolute_path`. Для старых payload оставлен fallback на верхнеуровневые `file_path`, `filePath`, `path` и `absolute_path`.
+
+Если эти поля не совпали с protected path, hook дополнительно ищет protected path во всем объекте `tool_input`. Это нужно для payload, где имя файла передано во вложенном или нестандартном поле.
 
 Hook подключен в `.gigacode/settings.json`. `settings.example.json` оставлен как копия для разбора настройки.
 

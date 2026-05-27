@@ -103,5 +103,8 @@ Write-Host "Checking hook behavior"
 $ProtectedPayload = '{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"file_path":"developer-track/docs/code-standards.md"}}'
 $HookOutput = $ProtectedPayload | python (Join-Path $Root ".gigacode/hooks/protect_sources.py") | ConvertFrom-Json
 Assert-PreToolUseOutput $HookOutput "deny"
+$NestedProtectedPayload = '{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"target":{"name":"developer-track/docs/code-standards.md"}}}'
+$NestedHookOutput = $NestedProtectedPayload | python (Join-Path $Root ".gigacode/hooks/protect_sources.py") | ConvertFrom-Json
+Assert-PreToolUseOutput $NestedHookOutput "deny"
 
 Write-Host "Verification complete"

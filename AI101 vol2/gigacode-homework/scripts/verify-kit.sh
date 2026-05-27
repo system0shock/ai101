@@ -84,5 +84,22 @@ if specific.get("permissionDecision") != "deny":
 if not specific.get("permissionDecisionReason"):
     raise SystemExit("Hook output is missing hookSpecificOutput.permissionDecisionReason")
 PY
+nested_protected_payload='{"hook_event_name":"PreToolUse","tool_name":"WriteFile","tool_input":{"target":{"name":"developer-track/docs/code-standards.md"}}}'
+nested_hook_output="$(printf '%s' "$nested_protected_payload" | python "$ROOT/.gigacode/hooks/protect_sources.py")"
+python - "$nested_hook_output" <<'PY'
+import json
+import sys
+
+output = json.loads(sys.argv[1])
+specific = output.get("hookSpecificOutput")
+if not isinstance(specific, dict):
+    raise SystemExit("Nested hook output is missing hookSpecificOutput")
+if specific.get("hookEventName") != "PreToolUse":
+    raise SystemExit("Nested hook output has invalid hookSpecificOutput.hookEventName")
+if specific.get("permissionDecision") != "deny":
+    raise SystemExit("Nested protected tool_input payload was not denied")
+if not specific.get("permissionDecisionReason"):
+    raise SystemExit("Nested hook output is missing hookSpecificOutput.permissionDecisionReason")
+PY
 
 echo "Проверка завершена"
