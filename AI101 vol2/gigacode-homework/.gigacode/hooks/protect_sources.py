@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
+import io
 import json
 import sys
+
+# Принудительно UTF-8 на stdout — иначе Windows может выдать cp1251
+# и GigaCode не сможет распарсить JSON с кириллицей в reason.
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 PROTECTED_PARTS = [
     "analyst-track/docs/stakeholder-notes.md",
     "developer-track/docs/code-standards.md",
 ]
 
-WRITE_TOOLS = {"Edit", "WriteFile"}
+WRITE_TOOLS = {"Edit", "Write", "WriteFile", "MultiEdit"}
 
 
 def decision_output(decision: str, reason: str) -> dict:
@@ -25,7 +30,7 @@ def main() -> int:
     try:
         payload = json.loads(raw) if raw.strip() else {}
     except json.JSONDecodeError:
-        print("Не удалось прочитать JSON hook payload", file=sys.stderr)
+        print("protect_sources: failed to parse hook payload", file=sys.stderr)
         return 2
 
     tool_name = str(payload.get("tool_name") or "")
@@ -46,26 +51,31 @@ def main() -> int:
     )
     normalized = path.replace("\\", "/")
 
+    # Защищённые файлы — всегда deny
     for protected in PROTECTED_PARTS:
         if protected in normalized:
             response = decision_output(
                 "deny",
-                f"Файл {protected} защищен в учебном комплекте. Создайте заметку в expected/ или предложите patch в ответе.",
+                f"File '{protected}' is protected. Put your notes in expected/ or propose a patch in the chat.",
             )
             print(json.dumps(response, ensure_ascii=False))
             return 0
 
+    # Если путь не определился для операции записи — deny (безопасный fallback)
     if tool_name in WRITE_TOOLS and not normalized:
         response = decision_output(
             "deny",
-            "Hook не смог определить путь файла для операции записи. Проверьте payload или обновите protect_sources.py.",
+            "protect_sources: could not determine file path for a write operation. Check payload or update protect_sources.py.",
         )
         print(json.dumps(response, ensure_ascii=False))
         return 0
 
+    # Все остальные файлы — разрешаем явно (allow, не ask)
+    # "ask" в auto/yolo-режиме GigaCode автоматически подтверждается,
+    # что делает хук бесполезным для незащищённых файлов.
     response = decision_output(
-        "ask",
-        "Учебный hook просит подтвердить изменение файла.",
+        "allow",
+        "File is not protected.",
     )
     print(json.dumps(response, ensure_ascii=False))
     return 0
