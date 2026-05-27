@@ -8,7 +8,7 @@
 
 1. Прочитайте `.gigacode/hooks/README.md`.
 2. Сравните `.gigacode/settings.example.json` с текущими настройками GigaCode.
-3. Не просите менять `analyst-track/docs/stakeholder-notes.md`, если example hook не включен.
+3. Не просите менять `analyst-track/docs/stakeholder-notes.md`, если учебный hook не включен.
 4. Попросите агента объяснить, какое решение `deny` должен вернуть hook для `analyst-track/docs/stakeholder-notes.md`.
 5. Попросите агента подготовить предложение правки в ответе, без изменения исходных заметок.
 
