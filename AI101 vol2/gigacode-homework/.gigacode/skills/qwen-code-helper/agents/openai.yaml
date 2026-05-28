@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qwen Code Helper"
+  short_description: "Explains Qwen Code homework concepts"
+  default_prompt: "Explain the confusing Qwen Code or GigaCode concept using local references and give the next safe step."

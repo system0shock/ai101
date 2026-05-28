@@ -6,6 +6,12 @@ $required = @(
     "GIGACODE.md",
     ".gigacode/settings.example.json",
     ".gigacode/hooks/protect_sources.py",
+    ".gigacode/skills/qwen-code-helper/SKILL.md",
+    ".gigacode/skills/qwen-code-helper/references/source-index.md",
+    ".gigacode/skills/qwen-code-helper/references/commands-tools.md",
+    ".gigacode/skills/qwen-code-helper/references/skills-hooks.md",
+    ".gigacode/skills/qwen-code-helper/references/mcp-subagents.md",
+    "shared/qwen-code-docs/README.md",
     "developer-track/tasks/01-commands.md",
     "developer-track/tasks/02-tools.md",
     "developer-track/tasks/03-skills.md",
@@ -50,5 +56,12 @@ Get-ChildItem -Path (Join-Path $root "*-track/tasks/06-subagents.md") | ForEach-
     }
 }
 
-Write-Host "Homework kit verification passed."
+$helper = Get-Content (Join-Path $root ".gigacode/skills/qwen-code-helper/SKILL.md") -Raw
+if ($helper -notmatch "qwen-code-helper") {
+    throw "qwen-code-helper skill is missing expected name"
+}
+if ($helper -notmatch "matcher casing") {
+    throw "qwen-code-helper must mention hook matcher casing"
+}
 
+Write-Host "Homework kit verification passed."
