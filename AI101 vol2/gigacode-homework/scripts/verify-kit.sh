@@ -15,11 +15,17 @@ test -f "$ROOT/.gigacode/skills/qwen-code-helper/references/mcp-subagents.md"
 test -f "$ROOT/shared/qwen-code-docs/README.md"
 
 for file in "$ROOT"/developer-track/tasks/*.md "$ROOT"/analyst-track/tasks/*.md; do
-  grep -q "Самостоятельно" "$file"
+  grep -q "docs-links" "$file"
+  grep -q "concrete-goal" "$file"
+  grep -q "qwen-code-docs" "$file"
+  grep -q "qwen-code-helper/references" "$file"
+  grep -q "self-hint" "$file"
 done
 
-grep -q "Параллельное упражнение" "$ROOT/developer-track/tasks/06-subagents.md"
-grep -q "Параллельное упражнение" "$ROOT/analyst-track/tasks/06-subagents.md"
+grep -q "parallel tool calls" "$ROOT/developer-track/tasks/06-subagents.md"
+grep -q "parallel tool calls" "$ROOT/analyst-track/tasks/06-subagents.md"
+grep -q "subagent_type" "$ROOT/developer-track/tasks/06-subagents.md"
+grep -q "subagent_type" "$ROOT/analyst-track/tasks/06-subagents.md"
 grep -q "matcher casing" "$ROOT/.gigacode/skills/qwen-code-helper/SKILL.md"
 
 echo "Homework kit verification passed."

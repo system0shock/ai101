@@ -41,18 +41,30 @@ $settings.hooks.PreToolUse | ForEach-Object {
 
 Get-ChildItem -Path (Join-Path $root "*-track/tasks/*.md") | ForEach-Object {
     $text = Get-Content $_.FullName -Raw
-    if ($text -notmatch "Самостоятельно") {
-        throw "Task has no self-written exercise: $($_.FullName)"
+    if ($text -notmatch "docs-links") {
+        throw "Task has no documentation links marker: $($_.FullName)"
+    }
+    if ($text -notmatch "concrete-goal") {
+        throw "Task has no concrete goal marker: $($_.FullName)"
+    }
+    if ($text -notmatch "qwen-code-docs") {
+        throw "Task has no official Qwen Code docs link: $($_.FullName)"
+    }
+    if ($text -notmatch "qwen-code-helper/references") {
+        throw "Task has no local qwen-code-helper reference link: $($_.FullName)"
+    }
+    if ($text -notmatch "self-hint") {
+        throw "Task has no self-work hint marker: $($_.FullName)"
     }
 }
 
 Get-ChildItem -Path (Join-Path $root "*-track/tasks/06-subagents.md") | ForEach-Object {
     $text = Get-Content $_.FullName -Raw
-    if ($text -notmatch "Параллельное упражнение") {
-        throw "Subagent task has no parallel exercise: $($_.FullName)"
+    if ($text -notmatch "subagent_type") {
+        throw "Subagent task must require named subagent_type: $($_.FullName)"
     }
-    if ($text -notmatch "Fork-субагенты отключены") {
-        throw "Subagent task does not state fork disabled: $($_.FullName)"
+    if ($text -notmatch "parallel tool calls") {
+        throw "Subagent task has no parallel exercise wording: $($_.FullName)"
     }
 }
 
