@@ -1,0 +1,38 @@
+{
+  "approvalMode": "default",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .gigacode/hooks/protect_sources.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "edit|write_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .gigacode/hooks/protect_sources.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .gigacode/hooks/protect_sources.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
+

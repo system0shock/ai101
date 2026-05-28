@@ -1,0 +1,7 @@
+{
+  "name": "local-knowledge",
+  "purpose": "Read-only пример MCP-сервера для домашнего задания",
+  "tools": ["search_docs", "get_doc"],
+  "writeAccess": false
+}
+
