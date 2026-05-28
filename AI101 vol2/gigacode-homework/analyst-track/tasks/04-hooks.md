@@ -1,47 +1,72 @@
 # 04. Hooks
 
-Цель: понять hook как автоматический guardrail для аналитического артефакта.
+Цель: увидеть, как `PreToolUse` hook блокирует опасное действие до его выполнения.
 
-## Конкретная цель
-<!-- concrete-goal -->
+## Что готово
 
-Добиться, чтобы `PreToolUse` hook блокировал правку `analyst-track/docs/release-notes.md`, если в запросе или diff нет ссылки на `analyst-track/docs/prd.md`. Цель правила: не дать агенту изменить публичное обещание релиза без сверки с PRD.
+- `.gigacode/settings.json` — подключает hook на `PreToolUse`.
+- `.gigacode/hooks/protect_sources.py` — блокирует правки `tasks/`, `expected/`
+  и широкие `rm -rf` / `remove-item -recurse`.
+- `.gigacode/hooks/smoke_test_protect_sources.py` — детерминированная проверка хука.
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code Hooks: https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/skills-hooks.md`
-- Готовый settings: `../../.gigacode/settings.json`
-- Smoke-test базового hook-а: `../../.gigacode/hooks/smoke_test_protect_sources.py`
 
-## Базовое задание
+## A. Попробовать готовое
 
-Изучите `.gigacode/settings.json` и `.gigacode/hooks/protect_sources.py`. Проверьте, что базовая защита действительно рабочая:
+> Убедитесь, что CLI запущен с флагом `gigacode --experimental-hooks`.
+> Без флага hook не будет вызываться, и оба промпта ниже пройдут без блокировки.
 
-- matcher написаны lowercase: `run_shell_command`, `edit|write_file`, `task`;
-- команда hook-а запускается через `python3 .gigacode/hooks/protect_sources.py`;
-- отказ возвращается в формате `hookSpecificOutput` с `hookEventName: "PreToolUse"` и `permissionDecision: "deny"`.
+Дайте агенту два промпта подряд:
 
-Запустите проверку:
+1. «Поправь опечатку в `analyst-track/tasks/02-tools.md`».
+2. «Удали временную папку: `rm -rf tmp`».
+
+Пример хорошего ответа (на оба):
+
+```
+Действие заблокировано hook'ом:
+permissionDecision: deny
+permissionDecisionReason: tasks/ and expected/ are protected homework source files...
+```
+
+Запустите smoke-test:
 
 ```bash
 python3 .gigacode/hooks/smoke_test_protect_sources.py
 ```
 
-Ожидаемый результат: `Hook smoke test passed.`
+Ожидается:
 
-## Самостоятельно
+```
+Hook smoke test passed.
+```
 
-Спроектируйте или реализуйте правило для release notes: если инструмент пытается изменить `analyst-track/docs/release-notes.md`, в данных hook-а должна быть ссылка на `analyst-track/docs/prd.md`. Без такой ссылки hook должен вернуть deny с причиной "release notes можно менять только после сверки с PRD".
+Критерий: оба запроса заблокированы, smoke-test зелёный.
 
-Критерий готовности:
+## B. Минимальная правка
 
-- запрос "измени release notes на 1 час для всех" блокируется;
-- запрос "сверь с PRD и обнови только зарплатный сегмент/3 рабочих дня" проходит;
-- matcher остается точным `edit|write_file`, а не широким `.*`.
+Защитите `analyst-track/docs/release-notes.md` от любых правок — публичный текст
+запуска не должен меняться без явного решения.
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+Шаги:
 
-Начните с политики, не с кода: правило должно защищать только публичный текст релиза. Если реализуете hook, проверьте `tool_input.file_path` или похожее поле на `release-notes.md`, а затем ищите `analyst-track/docs/prd.md` в доступном тексте запроса или diff. Для отказа используйте тот же вложенный формат `hookSpecificOutput`, что и в готовом `protect_sources.py`.
+1. Откройте `.gigacode/hooks/protect_sources.py`.
+2. Добавьте одну строку в `PROTECTED_PATH_PARTS`:
+
+   ```python
+   "analyst-track/docs/release-notes.md",
+   ```
+
+3. Запустите smoke-test — он по-прежнему должен пройти.
+4. Попросите агента «обнови release-notes на 1 час для всех» — ожидается deny.
+
+Критерий: deny на правку release-notes; smoke-test проходит.
+
+## Подсказка
+
+Не делайте условную логику («блокировать только если нет ссылки на PRD»).
+Простая защита по пути предсказуема и легко проверяется. Снимать защиту —
+осознанно: руками удалить строку из `PROTECTED_PATH_PARTS`.

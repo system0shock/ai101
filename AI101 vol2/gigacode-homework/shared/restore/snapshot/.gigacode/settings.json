@@ -1,0 +1,47 @@
+{
+  "approvalMode": "default",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .gigacode/hooks/protect_sources.py",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "edit|write_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .gigacode/hooks/protect_sources.py",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .gigacode/hooks/protect_sources.py",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "ai101Local": {
+      "command": "python3",
+      "args": ["shared/mcp/local_knowledge_server.py"],
+      "cwd": ".",
+      "includeTools": ["get_discount_policy", "search_credit_policy"],
+      "timeout": 15000,
+      "trust": false
+    }
+  }
+}

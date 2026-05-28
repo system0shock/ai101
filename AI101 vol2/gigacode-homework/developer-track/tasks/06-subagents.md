@@ -2,33 +2,78 @@
 
 Цель: делегировать узкие read-only проверки именованным субагентам.
 
-Fork-субагенты отключены. Не вызывайте `Task` без поля `subagent_type`.
+> Fork-субагенты отключены. Зовите subagents естественным языком — главный агент
+> сам решит, когда вызвать `Task(subagent_type=...)`.
 
-## Конкретная цель
-<!-- concrete-goal -->
+## Что готово
 
-Получить объединенный отчет из двух named subagents: один проверяет контракт скидки, второй проверяет тестовое покрытие. Итоговый отчет должен содержать два evidence-блока и одно решение, которое принимает главный агент.
+- `.gigacode/agents/code-reviewer.md` — read-only проверка контракта в Java-коде.
+- `.gigacode/agents/test-investigator.md` — read-only поиск тестов
+  и сценариев, которые затрагивает изменение.
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code Subagents: https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/mcp-subagents.md`
 
-## Базовое задание
+## A. Попробовать готовое
 
-Вызовите `Task(subagent_type="code-reviewer", prompt="проверь публичный контракт OrderService, выводы с file:line")` и `Task(subagent_type="test-investigator", prompt="найди тесты и сценарии, которые затрагивает изменение скидки")`.
+Промпт (после правки скидки из задания 02):
 
-## Параллельное упражнение
+```
+Используй code-reviewer, чтобы проверить публичный контракт DiscountPolicy.java
+после правки. Параллельно используй test-investigator, чтобы найти, какие тесты
+затрагивает это изменение. Сведи результаты в один отчёт.
+```
 
-Попросите главного агента запустить два независимых именованных subagents параллельно, если среда поддерживает parallel tool calls: `code-reviewer` проверяет контракт, `test-investigator` проверяет покрытие. Оба работают read-only, результаты объединяет главный агент, fork не используется.
+Пример хорошего ответа:
 
-## Самостоятельно
+```
+code-reviewer (read-only):
+- DiscountPolicy.java:5 — изменение границы > → >= консервативное:
+  расширяет покрытие (10 теперь скидывается), не сужает.
 
-Создайте named subagent `discount-policy-reviewer`: `name`, `description`, read-only `tools` allowlist, `approvalMode: plan`, prompt с требованием evidence. Затем сформулируйте вызов через `subagent_type`.
+test-investigator (read-only):
+- OrderServiceTest.java:9 — единственный тест, покрывает ровно 10 элементов.
+  Граничные точки 9 и 11 не покрыты.
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+Решение (главный агент):
+- Принять правку.
+- Добавить два теста: на 9 элементов (0% скидки) и на 11 (10% скидки).
+```
 
-Скопируйте `.gigacode/agents/code-reviewer.md` и сузьте ответственность до скидок. В prompt для вызова передайте пути `DiscountPolicy.java`, `OrderService.java`, `OrderServiceTest.java`, потому что named subagent стартует без истории родителя. Успех: subagent возвращает file:line evidence и не предлагает править файлы сам.
+Критерий: в логе видно два вызова subagent (parallel tool calls — если среда
+поддерживает; иначе последовательно), итоговое решение собирает главный агент.
 
+## B. Минимальная правка
+
+Скопируйте `.gigacode/agents/code-reviewer.md` в
+`.gigacode/agents/discount-policy-reviewer.md` и сузьте роль до политики скидок.
+
+Пример результата:
+
+```markdown
+---
+name: discount-policy-reviewer
+description: Read-only проверка контракта и граничных условий правил скидок.
+tools:
+  - read_file
+  - grep_search
+  - glob
+approvalMode: plan
+---
+
+Проверяй только код, относящийся к политикам скидок (DiscountPolicy
+и его потребители). Особое внимание: граничные условия (`>`, `>=`, `<`, `<=`)
+и наличие тестов на обе стороны границы. Возвращай findings с `file:line`.
+Файлы не редактируй.
+```
+
+Проверка: «используй discount-policy-reviewer, проверь DiscountPolicy.java».
+Subagent должен прокомментировать границу `>= 10` и упомянуть отсутствие
+тестов на 9 и 11 элементов.
+
+## Подсказка
+
+Subagent стартует без истории родителя. Если зовёте на конкретные файлы —
+назовите их в промпте, иначе он не будет знать, где искать.

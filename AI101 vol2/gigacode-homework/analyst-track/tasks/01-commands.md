@@ -1,27 +1,62 @@
 # 01. Commands
 
-Цель: управлять контекстом через команды.
+Цель: использовать встроенные команды контекста и создать свою.
 
-## Конкретная цель
-<!-- concrete-goal -->
+## Что готово
 
-Создать custom command `.gigacode/commands/prepare-credit-launch-meeting.md`, которая готовит встречу по запуску онлайн-кредита «Быстрый старт»: собирает факты, конфликты и вопросы владельцам без правки документов.
+- `.gigacode/commands/summarize-context.md` — собирает цель, файлы, ограничения.
+- `.gigacode/commands/review-changes.md` — проверяет текущие изменения.
+- `.gigacode/commands/write-handoff.md` — формирует handoff в конце упражнения.
+- Встроенные: `/tools`, `/skills`, `/mcp`, `@path`, `!shell`.
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code Commands: https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/commands-tools.md`
 
-## Базовое задание
+## A. Попробовать готовое
 
-Выполните `/tools`, `/skills`, `/mcp`, добавьте `@analyst-track/docs/prd.md` и `@analyst-track/docs/stakeholder-notes.md`, затем запустите `/summarize-context`.
+1. Выполните `/tools`, `/skills`, `/mcp` — посмотрите, что подключено.
+2. Добавьте два документа в контекст:
+   ```
+   @analyst-track/docs/prd.md @analyst-track/docs/faq.md
+   ```
+3. Запустите `/summarize-context`.
 
-## Самостоятельно
+Пример хорошего ответа:
 
-Напишите custom command для подготовки встречи: `description`, факты, конфликты, вопросы, без правок документов.
+```
+Цель: разобрать конфликты по запуску онлайн-кредита «Быстрый старт».
+Файлы в контексте:
+- analyst-track/docs/prd.md — утверждённые ограничения продукта.
+- analyst-track/docs/faq.md — черновик публичных формулировок.
+Ограничения: источники не редактируем без явного запроса.
+Следующий безопасный шаг: прочитать stakeholder-notes.md и release-notes.md,
+сверить публичные обещания с PRD.
+```
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+Критерий: вывод — это краткая сводка контекста, никаких правок файлов.
 
-Сделайте команду как reusable agenda: сначала собрать источники, затем выписать конфликты, потом сформулировать вопросы владельцам. Успех: после запуска команды агент выдаёт список вопросов вроде "для кого действует 3-дневный срок" и "можно ли обещать одобрение за 1 час всем клиентам", но не меняет `faq.md`.
+## B. Минимальная правка
+
+Скопируйте `.gigacode/commands/summarize-context.md` в
+`.gigacode/commands/prepare-credit-launch-meeting.md` и подмените содержимое
+под задачу подготовки встречи владельцев.
+
+Пример результата:
+
+```markdown
+---
+description: Подготовить агенду встречи по запуску онлайн-кредита
+---
+
+Подготовь встречу: собери ключевые факты из
+@analyst-track/docs/prd.md, @analyst-track/docs/stakeholder-notes.md,
+@analyst-track/docs/faq.md, @analyst-track/docs/release-notes.md.
+Выпиши конфликты с указанием источников и сформулируй вопросы владельцам.
+Документы не редактируй.
+```
+
+Проверка: запустите `/prepare-credit-launch-meeting`. Ожидается список вопросов
+вроде «какой лимит утверждён для старта» и «кто согласовал FAQ перед публикацией».
+Файлы в `docs/` не меняются.

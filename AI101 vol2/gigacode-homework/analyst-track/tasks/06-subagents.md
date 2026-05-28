@@ -1,33 +1,82 @@
 # 06. Subagents
 
-Цель: разделить анализ между именованными субагентами.
+Цель: делегировать узкие read-only проверки именованным субагентам.
 
-Fork-субагенты отключены. Используйте только `subagent_type`.
+> Fork-субагенты отключены. Зовите subagents естественным языком — главный агент
+> сам решит, когда вызвать `Task(subagent_type=...)`.
 
-## Конкретная цель
-<!-- concrete-goal -->
+## Что готово
 
-Получить финальное решение по release notes из двух named subagents: `doc-analyst` находит противоречия в источниках, `consistency-reviewer` проверяет итоговую формулировку. Главный агент объединяет результаты в один список правок.
+- `.gigacode/agents/doc-analyst.md` — read-only поиск противоречий в документах.
+- `.gigacode/agents/consistency-reviewer.md` — read-only проверка согласованности
+  итоговой формулировки.
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code Subagents: https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/mcp-subagents.md`
 
-## Базовое задание
+## A. Попробовать готовое
 
-Вызовите `Task(subagent_type="doc-analyst", prompt="найди противоречия в analyst-track/docs, выводы с file:line")` и `Task(subagent_type="consistency-reviewer", prompt="проверь, что release-notes не обещает больше, чем PRD")`.
+Промпт:
 
-## Параллельное упражнение
+```
+Используй doc-analyst, чтобы найти противоречия в analyst-track/docs.
+Затем используй consistency-reviewer, чтобы проверить, не обещает ли
+release-notes.md больше, чем PRD. Сведи всё в один список правок.
+```
 
-Попросите главного агента параллельно вызвать двух именованных subagents, если среда поддерживает parallel tool calls: `doc-analyst` ищет противоречия, `consistency-reviewer` проверяет финальную формулировку. Оба read-only, главный агент объединяет результаты, fork не используется.
+Пример хорошего ответа:
 
-## Самостоятельно
+```
+doc-analyst нашёл (read-only):
+- аудитория: faq.md vs prd.md
+- срок одобрения: faq.md vs prd.md
+- лимит: faq.md vs prd.md
+- ставка: faq.md vs prd.md
 
-Создайте subagent `legal-constraints-reviewer`: `name`, `description`, read-only `tools` allowlist, `approvalMode: plan`, prompt с требованием источников.
+consistency-reviewer (read-only):
+- release-notes.md соответствует PRD по всем четырём параметрам.
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+Список правок (главный агент):
+- faq.md: ограничить аудиторию зарплатным сегментом.
+- faq.md: исправить срок на «до 3 рабочих дней».
+- faq.md: исправить лимит на 500 000 руб.
+- faq.md: убрать ставку 9,9% или явно пометить как промо.
+```
 
-Сузьте subagent до одной роли: "проверяет юридические и регуляторные ограничения кредитного продукта". Вызов через `subagent_type` должен передавать пути `prd.md`, `stakeholder-notes.md`, `faq.md`, `release-notes.md` и требовать вывод `finding -> source -> recommended wording`. Успех: subagent находит нарушение требования юристов по сроку одобрения и не спорит с маркетинговыми пожеланиями без источника.
+Критерий: в логе видно два вызова subagent (parallel tool calls — если среда
+поддерживает; иначе последовательно), итоговый список собирает главный агент.
+
+## B. Минимальная правка
+
+Скопируйте `.gigacode/agents/doc-analyst.md` в
+`.gigacode/agents/legal-constraints-reviewer.md` и сузьте роль до юридических ограничений.
+
+Пример результата:
+
+```markdown
+---
+name: legal-constraints-reviewer
+description: Read-only проверка юридических и регуляторных ограничений в документах кредитного продукта.
+tools:
+  - read_file
+  - grep_search
+  - glob
+approvalMode: plan
+---
+
+Проверяй только юридические и регуляторные требования: согласие юристов
+на формулировки, соответствие срокам, ограничениям и обязательным дисклеймерам.
+Возвращай вывод в формате `finding -> source (file:line) -> recommended wording`.
+Файлы не редактируй.
+```
+
+Проверка: «используй legal-constraints-reviewer, проверь release-notes». Ожидается
+finding по сроку одобрения (1 час в FAQ против требования юристов писать реальный
+срок) с указанием источника.
+
+## Подсказка
+
+Subagent стартует без истории родителя. Если зовёте его на конкретные файлы —
+перечислите пути в промпте, иначе он не будет знать, где искать.

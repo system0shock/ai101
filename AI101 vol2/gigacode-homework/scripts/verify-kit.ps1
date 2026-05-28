@@ -62,6 +62,7 @@ $required = @(
     "shared/mcp/local_knowledge_server.py",
     "shared/mcp/smoke_test_local_server.py",
     "shared/mcp/local-stdio-server.config.example.json",
+    "developer-track/pom.xml",
     "developer-track/tasks/01-commands.md",
     "developer-track/tasks/02-tools.md",
     "developer-track/tasks/03-skills.md",
@@ -98,12 +99,12 @@ foreach ($settingsFile in $settingsFiles) {
 }
 
 Get-ChildItem -Path (Join-Path $root "*-track/tasks/*.md") | ForEach-Object {
-    $text = Get-Content $_.FullName -Raw
-    if ($text -notmatch "docs-links") {
-        throw "Task has no documentation links marker: $($_.FullName)"
+    $text = Get-Content $_.FullName -Raw -Encoding UTF8
+    if ($text -notmatch "(?m)^## A\.") {
+        throw "Task is missing '## A.' section: $($_.FullName)"
     }
-    if ($text -notmatch "concrete-goal") {
-        throw "Task has no concrete goal marker: $($_.FullName)"
+    if ($text -notmatch "(?m)^## B\.") {
+        throw "Task is missing '## B.' section: $($_.FullName)"
     }
     if ($text -notmatch "qwen-code-docs") {
         throw "Task has no official Qwen Code docs link: $($_.FullName)"
@@ -111,18 +112,12 @@ Get-ChildItem -Path (Join-Path $root "*-track/tasks/*.md") | ForEach-Object {
     if ($text -notmatch "qwen-code-helper/references") {
         throw "Task has no local qwen-code-helper reference link: $($_.FullName)"
     }
-    if ($text -notmatch "self-hint") {
-        throw "Task has no self-work hint marker: $($_.FullName)"
-    }
 }
 
 Get-ChildItem -Path (Join-Path $root "*-track/tasks/06-subagents.md") | ForEach-Object {
     $text = Get-Content $_.FullName -Raw
     if ($text -notmatch "subagent_type") {
-        throw "Subagent task must require named subagent_type: $($_.FullName)"
-    }
-    if ($text -notmatch "parallel tool calls") {
-        throw "Subagent task has no parallel exercise wording: $($_.FullName)"
+        throw "Subagent task must mention subagent_type: $($_.FullName)"
     }
 }
 

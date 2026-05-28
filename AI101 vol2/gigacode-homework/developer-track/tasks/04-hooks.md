@@ -1,47 +1,72 @@
 # 04. Hooks
 
-Цель: настроить guardrail и увидеть, как hook блокирует опасное действие до выполнения инструмента.
+Цель: увидеть, как `PreToolUse` hook блокирует опасное действие до его выполнения.
 
-## Конкретная цель
-<!-- concrete-goal -->
+## Что готово
 
-Добиться, чтобы готовый `PreToolUse` hook блокировал попытку изменить файлы `developer-track/tasks/` и возвращал понятную причину: задания являются исходным материалом, редактируйте код в `app/` или явно попросите изменить домашку. Разрешенные изменения в `developer-track/app/` не должны блокироваться.
+- `.gigacode/settings.json` — подключает hook на `PreToolUse`.
+- `.gigacode/hooks/protect_sources.py` — блокирует правки `tasks/`, `expected/`
+  и широкие `rm -rf` / `remove-item -recurse`.
+- `.gigacode/hooks/smoke_test_protect_sources.py` — детерминированная проверка хука.
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code Hooks: https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/skills-hooks.md`
-- Готовый settings: `../../.gigacode/settings.json`
-- Smoke-test hook-а: `../../.gigacode/hooks/smoke_test_protect_sources.py`
 
-## Базовое задание
+## A. Попробовать готовое
 
-Изучите `.gigacode/settings.json` и `.gigacode/hooks/protect_sources.py`. Проверьте три обязательных свойства рабочей конфигурации:
+> Убедитесь, что CLI запущен с флагом `gigacode --experimental-hooks`.
+> Без флага hook не будет вызываться, и оба промпта ниже пройдут без блокировки.
 
-- matcher написаны lowercase: `run_shell_command`, `edit|write_file`, `task`;
-- команда hook-а запускается через `python3 .gigacode/hooks/protect_sources.py`;
-- отказ возвращается в формате `hookSpecificOutput` с `hookEventName: "PreToolUse"` и `permissionDecision: "deny"`.
+Дайте агенту два промпта подряд:
 
-Запустите проверку:
+1. «Поправь опечатку в `developer-track/tasks/02-tools.md`».
+2. «Удали папку target: `rm -rf target`».
+
+Пример хорошего ответа (на оба):
+
+```
+Действие заблокировано hook'ом:
+permissionDecision: deny
+permissionDecisionReason: tasks/ and expected/ are protected homework source files...
+```
+
+Запустите smoke-test:
 
 ```bash
 python3 .gigacode/hooks/smoke_test_protect_sources.py
 ```
 
-Ожидаемый результат: `Hook smoke test passed.`
+Ожидается:
 
-## Самостоятельно
+```
+Hook smoke test passed.
+```
 
-Добавьте в `protect_sources.py` второе правило: блокировать shell-команды, которые пытаются удалить каталог `developer-track/app/src/main/resources/` целиком. Цель правила: защитить тестовые данные приложения от случайного удаления, но не запрещать обычное чтение и точечное редактирование файлов в этом каталоге.
+Критерий: оба запроса заблокированы, smoke-test зелёный.
 
-Критерий готовности:
+## B. Минимальная правка
 
-- команда удаления всего каталога получает `permissionDecision: "deny"`;
-- причина отказа объясняет, что тестовые данные нельзя удалять целиком;
-- команда чтения файла из `developer-track/app/src/main/resources/` не блокируется.
+Защитите `developer-track/pom.xml` — Maven-конфигурацию ломать не хочется
+случайно: одна неверная правка зависимостей сломает сборку.
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+Шаги:
 
-Скопируйте структуру проверки опасных shell-команд из `protect_sources.py`: нормализуйте команду в lowercase, ищите одновременно действие удаления и защищенный путь. Для отказа используйте существующую функцию `deny(...)`, потому что она уже печатает корректный формат `hookSpecificOutput`.
+1. Откройте `.gigacode/hooks/protect_sources.py`.
+2. Добавьте одну строку в `PROTECTED_PATH_PARTS`:
+
+   ```python
+   "developer-track/pom.xml",
+   ```
+
+3. Запустите smoke-test — он по-прежнему должен пройти.
+4. Попросите агента «поменяй версию JUnit в pom.xml на 5.11.0» — ожидается deny.
+
+Критерий: deny на правку `pom.xml`; smoke-test проходит.
+
+## Подсказка
+
+Защита по пути — простой и проверяемый способ. Не уходите в условную логику
+(«блокировать, только если…»): она сложнее, ломается на нестандартных payload
+и проигрывает простой проверке вхождения подстроки.

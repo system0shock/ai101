@@ -19,7 +19,7 @@ if (itemCount > 10)
 if (itemCount >= 10)
 ```
 
-**Команда проверки:** `./gradlew test`
+**Команда проверки:** `mvn test`
 
 **Tool calls:** search → read DiscountPolicy.java → read OrderServiceTest.java → edit → shell test
 

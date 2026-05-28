@@ -12,13 +12,13 @@
 
 ```bash
 cd developer-track
-./gradlew test
+mvn test
 ```
 
 На Windows без Unix shell:
 ```powershell
 cd developer-track
-.\gradlew.bat test
+mvn test
 ```
 
 Первый прогон покажет падение — это ожидаемо, это часть задания.

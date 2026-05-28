@@ -1,28 +1,82 @@
 # 03. Skills
 
-Цель: понять, когда skill полезнее длинного prompt.
+Цель: понять, чем skill отличается от prompt, и научиться его расширять.
 
-## Конкретная цель
-<!-- concrete-goal -->
+## Что готово
 
-Создать skill `.gigacode/skills/junit-failure-review/SKILL.md`, который помогает разбирать JUnit-падения: требует команду воспроизведения, expected/actual, минимальную гипотезу и проверку после правки.
+- `.gigacode/skills/code-review/SKILL.md` — общий skill для ревью Java-кода.
+- `.gigacode/skills/evidence-first/SKILL.md` — общая практика «сначала факты».
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code Skills: https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/skills-hooks.md`
 
-## Базовое задание
+## A. Попробовать готовое
 
-Попросите агента применить `code-review` или `evidence-first` к изменению.
+Skill срабатывает автоматически, когда запрос подходит под `description`.
+Не нужно явно говорить «применяй code-review» — достаточно сформулировать запрос на ревью.
 
-## Самостоятельно
+> Subagent `code-reviewer` имеет схожее назначение и может перехватить запрос.
+> Чтобы увидеть работу skill, а не subagent, явно запретите делегирование.
 
-Создайте `junit-failure-review`: `name`, `description`, 4-6 правил и формат ответа. Примените его к `OrderServiceTest.java` и текущей правке скидки.
+Промпт (после правки скидки из задания 02):
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+```
+Не вызывай subagents — сделай ревью сам, чтобы был виден применённый skill.
 
-Начните с копии `.gigacode/skills/code-review/SKILL.md`. В `description` напишите: "Use when a JUnit test fails or Java test output needs diagnosis". Успех: агент сам структурирует ответ как reproduction -> evidence -> hypothesis -> minimal fix -> verification.
+Сделай ревью текущей правки в DiscountPolicy.java и проверь,
+не сломала ли она что-то ещё в OrderService.java и OrderServiceTest.java.
+```
 
+Пример хорошего ответа:
+
+```
+Применяю skill code-review.
+
+Findings:
+- DiscountPolicy.java:5 — правка корректна, скидка применяется теперь
+  ровно с 10 товаров, что совпадает с тестом appliesBulkDiscountFromTenItems.
+- OrderService.java:11 — totalRub использует discountPercent корректно,
+  регрессий не вижу.
+- OrderServiceTest.java — покрыт только случай ровно 10 товаров.
+  Не покрыты 9 (граница без скидки) и 11 (граница со скидкой).
+
+Рекомендация: добавить два теста на 9 и 11 элементов,
+чтобы зафиксировать новую границу.
+```
+
+Критерий: в начале ответа агент явно ссылается на skill (или ведёт ответ
+по его правилам: findings первыми, с `file:line`).
+
+## B. Минимальная правка
+
+Добавьте одно правило в готовый `code-review`: проверять граничные условия
+(`>`, `>=`, `<`, `<=`) на наличие тестов на обе стороны границы.
+
+Откройте `.gigacode/skills/code-review/SKILL.md` и допишите абзац.
+
+Пример результата:
+
+```markdown
+---
+name: code-review
+description: Используй для ревью Java-кода и тестов в developer-track.
+---
+
+# Code Review
+
+Ищи баги, регрессии, расхождения с заданием и недостающие тесты.
+Findings выводи первыми, с `file:line`.
+
+Особое внимание: граничные условия (`>`, `>=`, `<`, `<=`). Для каждой
+границы должен быть тест на обе её стороны. Если теста нет — это finding.
+```
+
+Проверка: повторите запрос из блока A. Расширенный skill должен явно
+вынести «нет тестов на 9 и 11» в отдельный finding с указанием границы.
+
+## Подсказка
+
+Не пишите skill с нуля — допишите один абзац. `description` менять не нужно,
+триггер остаётся тем же.

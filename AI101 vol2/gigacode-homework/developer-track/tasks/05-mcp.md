@@ -1,51 +1,73 @@
 # 05. MCP
 
-Цель: подключить готовый локальный stdio MCP server и получить ответ через MCP tool.
+Цель: подключить готовый MCP-сервер и получить через него read-only ответ.
 
-## Конкретная цель
-<!-- concrete-goal -->
+> Лучше делать **после** задания 02 — MCP-сервер содержит формулировку правила
+> скидки и может стать спойлером для самостоятельной диагностики бага.
 
-Подключить сервер `ai101Local` из `shared/mcp/local_knowledge_server.py`, вызвать tool `get_discount_policy` и получить ответ: `10% discount starts from 10 items inclusive`.
+## Что готово
+
+- `shared/mcp/local_knowledge_server.py` — локальный stdio MCP-сервер без зависимостей.
+- `shared/mcp/local-stdio-server.config.example.json` — пример блока `mcpServers`.
+- `shared/mcp/smoke_test_local_server.py` — проверка, что сервер стартует и отвечает.
+- Read-only tools: `get_discount_policy`, `search_credit_policy`.
 
 ## Документация
-<!-- docs-links -->
 
 - Official Qwen Code MCP: https://qwenlm.github.io/qwen-code-docs/en/users/features/mcp/
 - Локальная справка: `../../.gigacode/skills/qwen-code-helper/references/mcp-subagents.md`
-- Готовый сервер: `../../shared/mcp/README.md`
+- README сервера: `../../shared/mcp/README.md`
 
-## Базовое задание
+## A. Попробовать готовое
 
 1. Из корня `gigacode-homework/` проверьте сервер:
 
-   ```powershell
+   ```bash
    python3 shared/mcp/smoke_test_local_server.py
    ```
 
-2. Откройте `shared/mcp/local-stdio-server.config.example.json`.
+   Ожидается: `Local MCP stdio smoke test passed.`
 
-3. Добавьте блок `mcpServers.ai101Local` в локальный settings-файл вашей GigaCode/Qwen Code среды.
+2. Откройте `shared/mcp/local-stdio-server.config.example.json` и скопируйте
+   блок `mcpServers.ai101Local` в локальный settings-файл вашей GigaCode/Qwen Code среды.
 
-4. Перезапустите GigaCode CLI в корне `gigacode-homework/`.
+3. Перезапустите GigaCode CLI в корне `gigacode-homework/`.
 
-5. Выполните `/mcp` и убедитесь, что сервер `ai101Local` подключен.
+4. Выполните `/mcp` — должен появиться сервер `ai101Local` с tools.
 
-6. Попросите агента:
+5. Промпт:
 
-   ```text
-   Через MCP ai101Local вызови get_discount_policy для bulk-discount и верни только правило скидки и источник.
+   ```
+   Через MCP ai101Local вызови get_discount_policy для bulk-discount
+   и верни правило скидки и источник.
    ```
 
-## Самостоятельно
+Пример хорошего ответа:
 
-Настройте подключение так, чтобы через `includeTools` были доступны только:
+```
+Bulk discount policy: 10% discount starts from 10 items inclusive.
+Source: AI101 local policy fixture. Updated: 2026-05-28.
+```
 
-- `get_discount_policy`
-- `search_credit_policy`
+Критерий: `/mcp` показывает `ai101Local`, агент возвращает цитату из MCP,
+а не пересказ из кода `DiscountPolicy.java`.
 
-Затем попросите агента объяснить, почему `trust: false` безопаснее для учебного сервера.
+## B. Минимальная правка
 
-## Подсказка для самостоятельной части
-<!-- self-hint -->
+Сузьте `includeTools`, чтобы разработчику не предлагался analyst-tool.
 
-Сервер писать не нужно. Он уже есть. Ваша работа — подключить stdio process через `command`, `args`, `cwd`, проверить `/mcp` и получить простой read-only ответ. Если сервер не стартует, сначала проверьте, что команда `python3 shared/mcp/local_knowledge_server.py` запускается из корня `gigacode-homework/`.
+В вашем settings оставьте только один tool:
+
+```json
+"includeTools": ["get_discount_policy"]
+```
+
+Перезапустите CLI, выполните `/mcp`. У сервера `ai101Local` должен остаться один tool.
+
+Критерий: `search_credit_policy` больше не виден в `/mcp`; запрос из блока A работает.
+
+## Подсказка
+
+Собственный MCP-сервер писать не нужно — он уже есть. Если сервер не стартует,
+проверьте, что команда `python3 shared/mcp/local_knowledge_server.py` запускается
+из корня `gigacode-homework/` и что в конфиге `cwd` указывает туда же.

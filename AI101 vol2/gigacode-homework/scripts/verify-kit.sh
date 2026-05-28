@@ -18,17 +18,15 @@ test -f "$ROOT/shared/qwen-code-docs/README.md"
 test -f "$ROOT/shared/mcp/local_knowledge_server.py"
 test -f "$ROOT/shared/mcp/smoke_test_local_server.py"
 test -f "$ROOT/shared/mcp/local-stdio-server.config.example.json"
+test -f "$ROOT/developer-track/pom.xml"
 
 for file in "$ROOT"/developer-track/tasks/*.md "$ROOT"/analyst-track/tasks/*.md; do
-  grep -q "docs-links" "$file"
-  grep -q "concrete-goal" "$file"
+  grep -q "^## A\." "$file"
+  grep -q "^## B\." "$file"
   grep -q "qwen-code-docs" "$file"
   grep -q "qwen-code-helper/references" "$file"
-  grep -q "self-hint" "$file"
 done
 
-grep -q "parallel tool calls" "$ROOT/developer-track/tasks/06-subagents.md"
-grep -q "parallel tool calls" "$ROOT/analyst-track/tasks/06-subagents.md"
 grep -q "subagent_type" "$ROOT/developer-track/tasks/06-subagents.md"
 grep -q "subagent_type" "$ROOT/analyst-track/tasks/06-subagents.md"
 grep -q "matcher casing" "$ROOT/.gigacode/skills/qwen-code-helper/SKILL.md"
