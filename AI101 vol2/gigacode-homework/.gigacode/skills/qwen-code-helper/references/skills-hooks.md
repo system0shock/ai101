@@ -60,3 +60,33 @@ If a hook is configured with `RunShellCommand`, `WriteFile`, or `Task`, assume t
 
 Avoid `.*` unless the exercise explicitly asks for a global hook. Broad matchers slow the workflow and cause confusing blocks.
 
+## Working Hook Example In This Homework
+
+The ready settings files are:
+
+- `.gigacode/settings.json`
+- `.gigacode/settings.example.json`
+
+Both use:
+
+- `python3 .gigacode/hooks/protect_sources.py`
+- timeout `5000`
+- lowercase matchers
+
+For `PreToolUse`, deny output must be nested under `hookSpecificOutput`:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Reason shown to the model/user"
+  }
+}
+```
+
+Run the hook smoke test from the homework root:
+
+```bash
+python3 .gigacode/hooks/smoke_test_protect_sources.py
+```

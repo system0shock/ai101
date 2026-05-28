@@ -25,6 +25,17 @@ Transports:
 - `http`: recommended for remote services, configured with `httpUrl`.
 - `sse`: legacy/deprecated remote transport.
 
+Homework MCP server:
+
+- A ready-to-run stdio server is provided at `shared/mcp/local_knowledge_server.py`.
+- Do not ask the user to write an MCP server in the exercise.
+- Ask the user to run `python3 shared/mcp/smoke_test_local_server.py` from the `gigacode-homework/` root.
+- Use `shared/mcp/local-stdio-server.config.example.json` as the `mcpServers` example.
+- The server name is `ai101Local`.
+- Read-only tools:
+  - `get_discount_policy`
+  - `search_credit_policy`
+
 Safety:
 
 - `trust: true` skips confirmations for server tools and should be treated as high blast radius.
@@ -62,4 +73,3 @@ Parallel named-subagent exercise:
 - Make each prompt self-contained.
 - Require evidence with `file:line`.
 - Let the main agent merge results.
-

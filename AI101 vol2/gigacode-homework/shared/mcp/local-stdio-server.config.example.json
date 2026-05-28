@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ai101Local": {
+      "command": "python",
+      "args": ["shared/mcp/local_knowledge_server.py"],
+      "cwd": ".",
+      "includeTools": ["get_discount_policy", "search_credit_policy"],
+      "timeout": 15000,
+      "trust": false
+    }
+  }
+}

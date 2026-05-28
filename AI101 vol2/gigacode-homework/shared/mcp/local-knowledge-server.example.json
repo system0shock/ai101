@@ -1,7 +1,8 @@
 {
-  "name": "local-knowledge",
-  "purpose": "Read-only пример MCP-сервера для домашнего задания",
-  "tools": ["search_docs", "get_doc"],
+  "name": "ai101-local-knowledge",
+  "transport": "stdio",
+  "command": "python3",
+  "args": ["shared/mcp/local_knowledge_server.py"],
+  "tools": ["get_discount_policy", "search_credit_policy"],
   "writeAccess": false
 }
-
